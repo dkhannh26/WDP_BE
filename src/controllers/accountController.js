@@ -9,7 +9,6 @@ const Account = require("../models/accounts");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const jwt = require("jsonwebtoken");
-const Orders = require("../models/orders");
 
 const handleLogin = async (req, res) => {
   const { username, password } = req.body;
@@ -24,9 +23,6 @@ const handleLogin = async (req, res) => {
           message: "Username or password is incorrect",
         });
       } else {
-        // req.session.userId = username;
-        // console.log(user._id);
-
         const payload = {
           id: user._id,
           email: user.email,
