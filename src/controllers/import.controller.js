@@ -7,7 +7,7 @@ const Shoes = require("../models/shoes");
 const Accessories = require("../models/accessories");
 const Account = require("../models/accounts");
 const Pant_shirt_sizes = require("../models/pant_shirt_sizes");
-const Pant_shirt_size_detail = require("../models/pant_shirt_size_detail");
+const Pant_shirt_size_detail = require("../models/product_size");
 const Shoes_sizes = require("../models/shoes_sizes");
 const Shoes_size_detail = require("../models/shoes_size_detail");
 const jwt = require("jsonwebtoken");
@@ -140,30 +140,30 @@ const createImportDetail = async (req, res) => {
 
     const tshirtIds = tshirt
       ? await processItemsDetail(
-          tshirt,
-          Tshirts,
-          "tshirt_id",
-          Pant_shirt_sizes,
-          Pant_shirt_size_detail
-        )
+        tshirt,
+        Tshirts,
+        "tshirt_id",
+        Pant_shirt_sizes,
+        Pant_shirt_size_detail
+      )
       : [];
     const pantIds = pant
       ? await processItemsDetail(
-          pant,
-          Pants,
-          "pant_id",
-          Pant_shirt_sizes,
-          Pant_shirt_size_detail
-        )
+        pant,
+        Pants,
+        "pant_id",
+        Pant_shirt_sizes,
+        Pant_shirt_size_detail
+      )
       : [];
     const shoeIds = shoes
       ? await processItemsDetail(
-          shoes,
-          Shoes,
-          "shoes_id",
-          Shoes_sizes,
-          Shoes_size_detail
-        )
+        shoes,
+        Shoes,
+        "shoes_id",
+        Shoes_sizes,
+        Shoes_size_detail
+      )
       : [];
     const accessoryIds = accessory
       ? await processItems(accessory, Accessories, "accessory_id")

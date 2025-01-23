@@ -1,6 +1,6 @@
 const Pant = require("../models/pants");
 const Image = require("../models/images");
-const Pant_shirt_size_detail = require("../models/pant_shirt_size_detail");
+const Pant_shirt_size_detail = require("../models/product_size");
 const Pant_shirt_sizes = require("../models/pant_shirt_sizes");
 const Discounts = require("../models/discounts")
 const { uploadMultipleFiles } = require("../services/fileService");

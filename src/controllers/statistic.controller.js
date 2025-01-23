@@ -1,6 +1,6 @@
 const Order_details = require("../models/order_details");
 const Orders = require("../models/orders");
-const Pant_shirt_size_detail = require("../models/pant_shirt_size_detail");
+const Pant_shirt_size_detail = require("../models/product_size");
 const excelJs = require("exceljs");
 
 const getStatistic = async (req, res, next) => {

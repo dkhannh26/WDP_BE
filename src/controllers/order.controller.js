@@ -1,6 +1,6 @@
 const Orders = require('../models/orders');
 const OrderDetails = require('../models/order_details');
-const pantShirtSizeDetail = require('../models/pant_shirt_size_detail');
+const pantShirtSizeDetail = require('../models/product_size');
 const shoesSizeDetail = require('../models/shoes_size_detail');
 const Image = require('../models/images');
 const TshirtPantSize = require('../models/pant_shirt_sizes');

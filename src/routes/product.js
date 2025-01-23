@@ -45,8 +45,14 @@ var {
 } = require("../controllers/shoes.controller");
 
 const { getSearchList } = require("../controllers/product.controller");
+const { getProductList,
+  getProductDetail
+} = require("../controllers/product/product.controller");
 
+router.get("/:id", getProductDetail);
+router.get("/", getProductList);
 router.get('/search/:text', getSearchList)
+
 
 router.get("/tshirt/increase", getTshirtListIncrease);
 router.get("/tshirt/decrease", getTshirtListDecrease);
