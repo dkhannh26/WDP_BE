@@ -8,34 +8,6 @@ const discountsSchema = new mongoose.Schema(
       required: true,
     },
     expired_at: Date,
-
-    accessory_id: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "accessories",
-      },
-    ],
-
-    shoes_id: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "shoes",
-      },
-    ],
-
-    tshirt_id: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "tshirts",
-      },
-    ],
-
-    pant_id: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "pants",
-      },
-    ],
   },
   {
     timestamps: true, // createdAt, updatedAt

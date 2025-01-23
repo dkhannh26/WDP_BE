@@ -7,21 +7,9 @@ const schema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    accessory_id: {
+    product_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "accessories",
-    },
-    shoes_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "shoes",
-    },
-    pant_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "pants",
-    },
-    tshirt_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "tshirts",
+      ref: "products",
     },
   },
   {

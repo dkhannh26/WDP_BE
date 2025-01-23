@@ -1,5 +1,4 @@
 const Orders = require('../models/orders');
-const OrderDetails = require('../models/order_details');
 const pantShirtSizeDetail = require('../models/pant_shirt_size_detail');
 const shoesSizeDetail = require('../models/shoes_size_detail');
 const Image = require('../models/images');
@@ -11,6 +10,10 @@ const Pant = require('../models/pants');
 const Shoes = require('../models/shoes');
 const Accessory = require('../models/accessories')
 const Discounts = require('../models/discounts')
+const OrderDetails = require('../models/order_detail');
+const ProductSizes = require('../models/product_size');
+const Products = require('../models/products');
+const Brands = require('../models/brands');
 
 class OrderController {
     getList(req, res, next) {
@@ -491,7 +494,253 @@ class OrderController {
                 res.status(500).json({ error: err.message });
             });
     }
+    async getTop10ProductsByCategory(req, res, next) {
+        try {
+            const topProducts = await OrderDetails.aggregate([
+                {
+                    $lookup: {
+                        from: 'product_sizes',
+                        localField: 'product_size_id',
+                        foreignField: '_id',
+                        as: 'product_size_info',
+                    },
+                },
+                {
+                    $unwind: '$product_size_info',
+                },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: 'product_size_info.product_id',
+                        foreignField: '_id',
+                        as: 'product_info',
+                    },
+                },
+                {
+                    $unwind: '$product_info',
+                },
+                {
+                    $lookup: {
+                        from: 'images',
+                        localField: 'product_info._id',
+                        foreignField: 'product_id',
+                        as: 'product_images',
+                    },
+                },
+                {
+                    $project: {
+                        'product_images.createdAt': 0,
+                        'product_images.updatedAt': 0,
+                    },
+                },
+                {
+                    $lookup: {
+                        from: 'discounts',
+                        localField: 'product_info.discount_id',
+                        foreignField: '_id',
+                        as: 'product_discount',
+                    },
+                },
+                {
+                    $unwind: {
+                        path: '$product_discount',
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                {
+                    $group: {
+                        _id: {
+                            product_id: '$product_info._id',
+                            category: '$product_info.category',
+                            product: '$product_info.name',
+                        },
+                        totalQuantity: { $sum: '$quantity' },
+                        images: { $first: '$product_images' },
+                        price: { $first: '$product_info.price' },
+                        discount: { $first: '$product_discount.percent' },
+                    },
+                },
+                {
+                    $sort: {
+                        '_id.category': 1,
+                        totalQuantity: -1,
+                    },
+                },
+                {
+                    $group: {
+                        _id: '$_id.category',
+                        topProducts: {
+                            $push: {
+                                product_id: '$_id.product_id',
+                                productName: '$_id.product',
+                                productPrice: '$price',
+                                productDiscount: '$discount',
+                                totalQuantity: '$totalQuantity',
+                                images: '$images',
+                            },
+                        },
+                    },
+                },
+                {
+                    $addFields: {
+                        topProducts: {
+                            $map: {
+                                input: '$topProducts',
+                                as: 'product',
+                                in: {
+                                    $mergeObjects: [
+                                        '$$product',
+                                        {
+                                            image: {
+                                                $cond: {
+                                                    if: { $gt: [{ $size: '$$product.images' }, 0] },
+                                                    then: {
+                                                        $concat: [
+                                                            '/images/upload/',
+                                                            '$$product.product_id',
+                                                            '/',
+                                                            { $arrayElemAt: ['$$product.images._id', 0] },
+                                                            { $arrayElemAt: ['$$product.images.file_extension', 0] }
+                                                        ]
+                                                    },
+                                                    else: ''
+                                                },
+                                            },
+                                        },
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    $project: {
+                        category: '$_id',
+                        topProducts: { $slice: ['$topProducts', 10] },
+                    },
+                },
+            ]);
 
+            res.status(200).json({ data: topProducts });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getHotBrands(req, res, next) {
+        try {
+            const hotBrands = await Products.aggregate([
+                {
+                    $lookup: {
+                        from: 'brands',
+                        localField: 'brand_id',
+                        foreignField: '_id',
+                        as: 'brand_info',
+                    },
+                },
+
+                {
+                    $unwind: '$brand_info',
+                },
+                {
+                    $lookup: {
+                        from: 'images',
+                        localField: '_id',
+                        foreignField: 'product_id',
+                        as: 'product_images',
+                    },
+                },
+                {
+                    $lookup: {
+                        from: 'discounts',
+                        localField: 'discount_id',
+                        foreignField: '_id',
+                        as: 'product_discount',
+                    },
+                },
+                {
+                    $unwind: {
+                        path: '$product_discount',
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                {
+                    $group: {
+                        _id: {
+                            product_id: '$_id',
+                            brand: '$brand_info.name',
+                            product: '$name',
+                        },
+                        images: { $first: '$product_images' },
+                        price: { $first: '$price' },
+                        discount: { $first: '$product_discount.percent' },
+                        createdAt: { $first: '$createdAt' },
+                    },
+                },
+                {
+                    $sort: {
+                        createdAt: -1,
+                        '_id.brand': 1,
+                    },
+                },
+                {
+                    $group: {
+                        _id: '$_id.brand',
+                        hotBrands: {
+                            $push: {
+                                product_id: '$_id.product_id',
+                                productName: '$_id.product',
+                                productPrice: '$price',
+                                productDiscount: '$discount',
+                                images: '$images',
+                            },
+                        },
+                    },
+                },
+                {
+                    $addFields: {
+                        hotBrands: {
+                            $map: {
+                                input: '$hotBrands',
+                                as: 'product',
+                                in: {
+                                    $mergeObjects: [
+                                        '$$product',
+                                        {
+                                            image: {
+                                                $cond: {
+                                                    if: { $gt: [{ $size: '$$product.images' }, 0] },
+                                                    then: {
+                                                        $concat: [
+                                                            '/images/upload/',
+                                                            '$$product.product_id',
+                                                            '/',
+                                                            { $arrayElemAt: ['$$product.images._id', 0] },
+                                                            { $arrayElemAt: ['$$product.images.file_extension', 0] }
+                                                        ]
+                                                    },
+                                                    else: ''
+                                                },
+                                            },
+                                        },
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    $project: {
+                        brand: '$_id',
+                        hotBrands: { $slice: ['$hotBrands', 5] },
+                    },
+                },
+            ]);
+            res.status(200).json({ data: hotBrands });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 module.exports = new OrderController;
