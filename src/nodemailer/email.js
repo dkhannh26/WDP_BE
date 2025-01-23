@@ -45,7 +45,7 @@ const sendVerifyCreate = async (email, resetURL) => {
     });
 
     const info = await transporter.sendMail({
-      from: '"Dotai 👻" <dotaiverify@gmail.com>',
+      from: '"Dotai " <dotaiverify@gmail.com>',
       to: email,
       subject: "Verify your email",
       html: VERIFY_CREATE_ACCOUNT.replace("{resetURL}", resetURL),
@@ -73,7 +73,7 @@ const sendChangeEmail = async (email, resetURL) => {
     });
 
     const info = await transporter.sendMail({
-      from: '"Dotai 👻" <dotaiverify@gmail.com>',
+      from: '"Dotai " <dotaiverify@gmail.com>',
       to: email,
       subject: "Verify change your email",
       html: VERIFY_CHANGE_EMAIL.replace("{resetURL}", resetURL),
@@ -104,7 +104,10 @@ const sendPasswordResetEmail = async (email, resetURL) => {
       from: '"Dotai 👻" <dotaiverify@gmail.com>',
       to: email,
       subject: "Reset your password",
-      html: PASSWORD_RESET_REQUEST_TEMPLATE.replace("{resetURL}", resetURL),
+      html: PASSWORD_RESET_REQUEST_TEMPLATE.replace(
+        "{verificationCode}",
+        resetURL
+      ),
     });
 
     console.log("Password reset email sent successfully", info);
