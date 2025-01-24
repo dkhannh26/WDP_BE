@@ -597,9 +597,9 @@ class OrderController {
                                                     then: {
                                                         $concat: [
                                                             '/images/upload/',
-                                                            '$$product.product_id',
+                                                            { $toString: '$$product.product_id' },
                                                             '/',
-                                                            { $arrayElemAt: ['$$product.images._id', 0] },
+                                                            { $toString: { $arrayElemAt: ['$$product.images._id', 0] } },
                                                             { $arrayElemAt: ['$$product.images.file_extension', 0] }
                                                         ]
                                                     },
@@ -713,9 +713,9 @@ class OrderController {
                                                     then: {
                                                         $concat: [
                                                             '/images/upload/',
-                                                            '$$product.product_id',
+                                                            { $toString: '$$product.product_id' },
                                                             '/',
-                                                            { $arrayElemAt: ['$$product.images._id', 0] },
+                                                            { $toString: { $arrayElemAt: ['$$product.images._id', 0] } },
                                                             { $arrayElemAt: ['$$product.images.file_extension', 0] }
                                                         ]
                                                     },
