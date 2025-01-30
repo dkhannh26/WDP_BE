@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 
 const getAccountList = async (req, res) => {
   try {
-    let list = await Account.findWithDeleted({});
+    let list = await Account.findWithDeleted({ role: { $ne: "admin" } });
     return res.status(200).json({ message: "ok", list });
   } catch (error) {
     res.status(400).json({ EC: 1 });

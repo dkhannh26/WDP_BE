@@ -9,7 +9,6 @@ const Account = require("../models/accounts");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const jwt = require("jsonwebtoken");
-const Orders = require("../models/orders");
 
 const handleLogin = async (req, res) => {
   const { username, password } = req.body;
