@@ -61,8 +61,6 @@ const getProductDetail = async (req, res) => {
     const brand = await Brand.findById(brand_id)
     const discount = await Discounts.findById(discount_id)
 
-
-
     const sizes = await Product_size.find({ product_id: product._id })
     let sizeResult = []
 
