@@ -5,7 +5,7 @@ const productRouter = require('./product');
 const sizeRouter = require('./size');
 const voucherRouter = require('./voucher');
 var cartRouter = require("./cart");
-var orderRouter = require("./order");
+// var orderRouter = require("./order");
 var paymentRouter = require("./payment");
 var feedbackRouter = require("./feedback");
 
@@ -16,7 +16,7 @@ const importRouter = require("./import");
 var accountRouter = require("./accountRouter");
 
 /* GET home page. */
-router.use("/order", orderRouter);
+// router.use("/order", orderRouter);
 router.use("/cart", cartRouter);
 router.use("/payment", paymentRouter);
 router.use("/discount", discountRoute);

@@ -1,21 +1,17 @@
 const mongoose = require("mongoose");
 const mongoose_delete = require("mongoose-delete");
 
-const Schema = new mongoose.Schema(
-    {
-        name: {
-            type: String,
-            required: true,
-        }
+const brandSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
     },
-    {
-        timestamps: true, // createdAt, updatedAt
-    }
-);
+
+});
 
 // Override all methods
-Schema.plugin(mongoose_delete, { overrideMethods: "all" });
+brandSchema.plugin(mongoose_delete, { overrideMethods: "all" });
 
-const Brand = mongoose.model("brands", Schema);
+const Brands = mongoose.model("brands", brandSchema);
 
-module.exports = Brand;
+module.exports = Brands;

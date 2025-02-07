@@ -3,31 +3,18 @@ const mongoose_delete = require("mongoose-delete");
 
 const schema = new mongoose.Schema(
     {
-        name: {
-            type: String,
-            required: true,
-        },
-        brand_id: {
+        order_id: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "brands",
+            ref: "orders",
         },
-        price: {
-            type: Number,
-            required: true,
-            min: 0,
-        },
-        discount_id: {
+        product_size_id: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "discounts",
-        },
-        category: {
-            type: String,
-            requried: true
+            ref: "product_size",
         },
         quantity: {
             type: Number,
             required: true,
-            min: 0,
+            min: 1,
         },
     },
     {
@@ -38,6 +25,6 @@ const schema = new mongoose.Schema(
 // Override all methods
 schema.plugin(mongoose_delete, { overrideMethods: "all" });
 
-const Products = mongoose.model("products", schema);
+const Order_detail = mongoose.model("order_detail", schema);
 
-module.exports = Products;
+module.exports = Order_detail;
