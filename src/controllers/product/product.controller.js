@@ -71,7 +71,7 @@ const getProductDetail = async (req, res) => {
         sizeResult.push({
             size_id: size.id,
             product_size_id: item._id,
-            size_name: size.size_name,
+            size_name: size.name,
             quantity: item.quantity
         });
     }
