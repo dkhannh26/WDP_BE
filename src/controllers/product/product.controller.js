@@ -9,20 +9,29 @@ const Sizes = require("../../models/sizes");
 const Products = require("../../models/products");
 const Product_size = require("../../models/product_size");
 const Brand = require("../../models/brands");
+const Brands = require("../../models/brands");
 const currentTimeInMillis = Date.now();
 const currentDate = new Date(currentTimeInMillis);
 
 const getProductList = async (req, res) => {
-
     try {
         let result = []
         const query = { deleted: false };
+        console.log(query.category);
 
         if (req.query.category) {
             query.category = req.query.category;
         }
 
+        if (req.query.brand && req.query.brand !== 'null') {
+            let brand = await Brands.findOne({ name: req.query.brand });
+            if (brand) {
+                query.brand_id = brand._id;
+            }
+        }
+
         let products = await Products.find(query);
+
 
         for (const product of products) {
             let imageUrl = ''
