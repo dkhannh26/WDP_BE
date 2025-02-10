@@ -499,7 +499,7 @@ class OrderController {
             const topProducts = await OrderDetails.aggregate([
                 {
                     $lookup: {
-                        from: 'product_sizes',
+                        from: 'product_size',
                         localField: 'product_size_id',
                         foreignField: '_id',
                         as: 'product_size_info',
