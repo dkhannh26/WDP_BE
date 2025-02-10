@@ -1,13 +1,13 @@
-// var express = require("express");
-// const orderController = require('../controllers/order.controller');
-// var orderRouter = express.Router();
+var express = require("express");
+const orderController = require('../controllers/order.controller');
+var orderRouter = express.Router();
 
 
 // orderRouter.get('/', orderController.getList);
 // orderRouter.post('/', orderController.createOrder);
 // orderRouter.delete('/', orderController.deleteAllOrder);
-// orderRouter.get('/hotProduct', orderController.getTop10ProductsByCategory);
-// orderRouter.get('/hotBrand', orderController.getHotBrands);
+orderRouter.get('/hotProduct', orderController.getTop10ProductsByCategory);
+orderRouter.get('/hotBrand', orderController.getHotBrands);
 // orderRouter.get('/pending/:accountId', orderController.getListPending);
 // orderRouter.get('/done/:accountId', orderController.getListDone);
 // orderRouter.get('/:orderId', orderController.getOrderById);
@@ -20,4 +20,4 @@
 // orderRouter.get('/account/:accountId', orderController.getOrderByAccountId);
 
 
-// module.exports = orderRouter;
+module.exports = orderRouter;
