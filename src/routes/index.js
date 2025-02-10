@@ -28,6 +28,8 @@ router.use("/statistic", statisticRouter)
 router.use("/feedback", feedbackRouter)
 router.use("/admin", adminRouter);
 router.use("/import", importRouter);
+
+/* GET home page. */
 /* GET home page. */
 // router.get('/', function(req, res, next) {
 //   res.render('index', { title: 'Express' });

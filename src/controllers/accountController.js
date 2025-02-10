@@ -9,7 +9,6 @@ const Account = require("../models/accounts");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const jwt = require("jsonwebtoken");
-const Orders = require("../models/orders");
 
 const handleLogin = async (req, res) => {
   const { username, password } = req.body;
@@ -24,9 +23,6 @@ const handleLogin = async (req, res) => {
           message: "Username or password is incorrect",
         });
       } else {
-        // req.session.userId = username;
-        // console.log(user._id);
-
         const payload = {
           id: user._id,
           email: user.email,
@@ -138,30 +134,49 @@ const handleLogout = async (req, res) => {
 };
 
 const forgotPassword = async (req, res) => {
-  const { email } = req.body;
+  const { email, code, token } = req?.body;
   try {
-    const account = await Account.findOne({ email });
+    if (!code) {
+      const account = await Account.findOne({ email });
+      if (!account) {
+        return res
+          .status(200)
+          .json({ success: false, message: "Your email does not exist" });
+      }
+      const randomCode = Math.floor(100000 + Math.random() * 900000);
+      console.log(randomCode);
 
-    if (!account) {
-      return res
-        .status(200)
-        .json({ success: false, message: "Your email does not exist" });
+      const token = jwt.sign(
+        { randomCode, email },
+        process.env.ACCESS_TOKEN_SECRET,
+        {
+          expiresIn: process.env.JWT_EXPIRE,
+        }
+      );
+      await sendPasswordResetEmail(account.email, randomCode);
+      res.status(200).json({
+        success: true,
+        message: "Code sent to your email",
+        token,
+      });
+    } else {
+      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+      const { randomCode, email } = decoded;
+      const newToken = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: process.env.JWT_EXPIRE,
+      });
+      if (randomCode == code) {
+        res.status(200).json({
+          success: true,
+          newToken,
+        });
+      } else {
+        res.status(200).json({
+          success: false,
+          message: "Your code is not correct",
+        });
+      }
     }
-
-    const token = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: process.env.JWT_EXPIRE,
-    });
-
-    // send email
-    await sendPasswordResetEmail(
-      account.email,
-      `${process.env.CLIENT_URL}/customer/reset-password/${token}`
-    );
-
-    res.status(200).json({
-      success: true,
-      message: "Password reset link sent to your email",
-    });
   } catch (error) {
     console.log("Error in forgotPassword ", error);
     res.status(400).json({ success: false, message: error.message });

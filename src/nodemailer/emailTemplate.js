@@ -80,10 +80,12 @@ const PASSWORD_RESET_REQUEST_TEMPLATE = `
   <div style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
     <p>Hello,</p>
     <p>We received a request to reset your password. If you didn't make this request, please ignore this email.</p>
-    <p>To reset your password, click the button below:</p>
+    
+    <p>Your verification code is</p>
     <div style="text-align: center; margin: 30px 0;">
-      <a href="{resetURL}" style="background-color: #4CAF50; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Reset Password</a>
-    </div>
+      <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #4CAF50;">{verificationCode}</span>
+     </div>
+
     <p>This link will expire in 1 hour for security reasons.</p>
     <p>Best regards,<br>Your App Team</p>
   </div>
@@ -168,7 +170,7 @@ const VERIFY_CHANGE_EMAIL = `
   <div style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
     <p>Hello,</p>
     <p>We received a request to change email. If you didn't make this request, please ignore this email.</p>
-    <p>To create account, click the button below:</p>
+    <p>To change your email, click the button below:</p>
     <div style="text-align: center; margin: 30px 0;">
       <a href="{resetURL}" style="background-color: #4CAF50; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Click here</a>
     </div>
