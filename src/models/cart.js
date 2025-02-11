@@ -7,17 +7,9 @@ const schema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "accounts",
     },
-    accessory_id: {
+    product_size_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "accessories",
-    },
-    shoes_size_detail_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "shoes_size_detail",
-    },
-    pant_shirt_size_detail_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "pant_shirt_size_detail",
+      ref: "product_size",
     },
     quantity: {
       type: Number,
