@@ -6,6 +6,7 @@
     "start": "cross-env NODE_CONFIG_DIR=./src/config nodemon ./src/bin/www"
   },
   "dependencies": {
+    "@payos/node": "^1.0.10",
     "api-query-params": "^5.4.0",
     "await": "^0.2.6",
     "axios": "^1.7.7",

@@ -16,128 +16,127 @@ const Products = require('../models/products');
 const Brands = require('../models/brands');
 
 class OrderController {
-    //     getList(req, res, next) {
-    //         Orders.find({})
-    //             .populate('account_id')
-    //             .then((orders) => {
-    //                 res.status(200).json(orders);
-    //             })
-    //             .catch((err) => {
-    //                 res.status(500).json({ error: err.message });
-    //             });
-    //     }
-    //     createOrder(req, res, next) {
-    //         Orders.create(req.body)
-    //             .then(async (order) => {
-    //                 const { orderItems } = req.body;
-    //                 const orderDetailsData = orderItems.map(item => ({
-    //                     order_id: order._id,
-    //                     accessory_id: item.accessory_id,
-    //                     shoes_size_detail_id: item.shoes_size_detail_id,
-    //                     pant_shirt_size_detail_id: item.pant_shirt_size_detail_id,
-    //                     quantity: Number(item.quantity)
-    //                 }));
-    //                 const orderDetails = await OrderDetails.create(orderDetailsData);
-    //                 res.status(201).json({
-    //                     orderDetails,
-    //                 });
-    //             })
-    //             .catch((err) => {
-    //                 console.error(err);
-    //                 res.status(500).json({ error: err.message });
-    //             });
-    //     }
+    getList(req, res, next) {
+        Orders.find({})
+            .populate('account_id')
+            .then((orders) => {
+                res.status(200).json(orders);
+            })
+            .catch((err) => {
+                res.status(500).json({ error: err.message });
+            });
+    }
+    createOrder(req, res, next) {
+        Orders.create(req.body)
+            .then(async (order) => {
+                const { orderItems } = req.body;
+                const orderDetailsData = orderItems.map(item => ({
+                    order_id: order._id,
+                    product_size_id: item.product_size_id,
+                    quantity: Number(item.quantity)
+                }));
+                console.log(orderDetailsData);
+                const orderDetails = await OrderDetails.create(orderDetailsData);
+                res.status(201).json({
+                    orderDetails,
+                });
+            })
+            .catch((err) => {
+                console.error(err);
+                res.status(500).json({ error: err.message });
+            });
+    }
 
 
-    //     deleteAllOrder(req, res, next) {
-    //         Orders.deleteMany({})
-    //             .then((Orders) => {
-    //                 res.status(200).json(Orders);
-    //             })
-    //             .catch((err) => {
-    //                 res.status(500).json({ error: err.message });
-    //             });
-    //     }
-    //     getOrderById(req, res, next) {
-    //         Orders.findById(req.params.orderId)
-    //             .populate('account_id', 'username')
-    //             .then((order) => {
-    //                 if (!order) return res.status(404).json({ message: 'order not found' });
-    //                 res.status(200).json(order);
-    //             })
-    //             .catch((err) => {
-    //                 res.status(500).json({ error: err.message });
-    //             });
-    //     }
-    //     updateOrderById(req, res, next) {
-    //         Orders.findByIdAndUpdate(req.params.orderId, req.body, { new: true })
-    //             .then((order) => {
-    //                 if (!order) return res.status(404).json({ message: 'order not found' });
-    //                 res.status(200).json(order);
-    //             })
-    //             .catch((err) => {
-    //                 res.status(500).json({ error: err.message });
-    //             });
-    //     }
-    //     deleteOrderById(req, res, next) {
-    //         Orders.findByIdAndDelete(req.params.orderId)
-    //             .then((order) => {
-    //                 if (!order) return res.status(404).json({ message: 'order not found' });
-    //                 res.status(200).json(order);
-    //             })
-    //             .catch((err) => {
-    //                 res.status(500).json({ error: err.message });
-    //             });
-    //     }
-    //     getOrderByAccountId(req, res, next) {
-    //         Orders.find({ account_id: req.params.accountId })
-    //             .populate('account_id', 'username')
-    //             .then((orders) => {
-    //                 if (!orders) return res.status(404).json({ message: 'orders not found' });
-    //                 res.status(200).json(orders);
-    //             })
-    //             .catch((err) => {
-    //                 res.status(500).json({ error: err.message });
-    //             });
-    //     }
-    //     // getOrderHistoryByAccountId(req, res, next) {
-    //     //     Orders.find({
-    //     //         // accountId: req.params.accountId,
-    //     //         status: { $in: ['shipped', 'cancelled'] }
-    //     //     })
-    //     //         .then((orders) => {
-    //     //             if (!orders) return res.status(404).json({ message: 'orders not found' });
-    //     //             res.status(200).json(orders);
+    deleteAllOrder(req, res, next) {
+        Orders.deleteMany({})
+            .then((Orders) => {
+                res.status(200).json(Orders);
+            })
+            .catch((err) => {
+                res.status(500).json({ error: err.message });
+            });
+    }
+    getOrderById(req, res, next) {
+        Orders.findById(req.params.orderId)
+            .populate('account_id', 'username')
+            .then((order) => {
+                if (!order) return res.status(404).json({ message: 'order not found' });
+                res.status(200).json(order);
+            })
+            .catch((err) => {
+                res.status(500).json({ error: err.message });
+            });
+    }
+    updateOrderById(req, res, next) {
+        Orders.findByIdAndUpdate(req.params.orderId, req.body, { new: true })
+            .then((order) => {
+                if (!order) return res.status(404).json({ message: 'order not found' });
+                res.status(200).json(order);
+            })
+            .catch((err) => {
+                res.status(500).json({ error: err.message });
+            });
+    }
+    deleteOrderById(req, res, next) {
+        Orders.findByIdAndDelete(req.params.orderId)
+            .then((order) => {
+                if (!order) return res.status(404).json({ message: 'order not found' });
+                res.status(200).json(order);
+            })
+            .catch((err) => {
+                res.status(500).json({ error: err.message });
+            });
+    }
+    getOrderByAccountId(req, res, next) {
+        Orders.find({ account_id: req.params.accountId })
+            .populate('account_id', 'username')
+            .then((orders) => {
+                if (!orders) return res.status(404).json({ message: 'orders not found' });
+                res.status(200).json(orders);
+            })
+            .catch((err) => {
+                res.status(500).json({ error: err.message });
+            });
+    }
+    getOrderHistoryByAccountId(req, res, next) {
+        Orders.find({
+            // accountId: req.params.accountId,
+            status: { $in: ['shipped', 'cancelled'] }
+        })
+            .then((orders) => {
+                if (!orders) return res.status(404).json({ message: 'orders not found' });
+                res.status(200).json(orders);
 
-    //     //         })
-    //     //         .catch((err) => {
-    //     //             res.status(500).json({ error: err.message });
-    //     //         });
-    //     // }
-    //     getListDone(req, res, next) {
-    //         const { accountId } = req.params;
-    //         console.log(accountId);
-    //         Orders.find({
-    //             account_id: accountId,
-    //             status: { $in: ['delivered', 'cancelled', 'shipped'] }
-    //         })
-    //             .then((orders) => {
-    //                 if (!orders) return res.status(404).json({ message: 'orders not found' });
-    //                 res.status(200).json(orders);
-    //             })
-    //     }
-    //     getListPending(req, res, next) {
-    //         const { accountId } = req.params;
-    //         console.log(accountId);
-    //         Orders.find({
-    //             account_id: accountId,
-    //             status: { $in: ['processing', 'pending'] }
-    //         })
-    //             .then((orders) => {
-    //                 if (!orders) return res.status(404).json({ message: 'orders not found' });
-    //                 res.status(200).json(orders);
-    //             })
-    //     }
+            })
+            .catch((err) => {
+                res.status(500).json({ error: err.message });
+            });
+    }
+    getListDone(req, res, next) {
+        const { accountId } = req.params;
+        console.log(accountId);
+        Orders.find({
+            account_id: accountId,
+            status: { $in: ['delivered', 'cancelled', 'shipped'] }
+        })
+            .then((orders) => {
+                if (!orders) return res.status(404).json({ message: 'orders not found' });
+                res.status(200).json(orders);
+            })
+    }
+    getListPending(req, res, next) {
+        const { accountId } = req.params;
+        console.log(accountId);
+        Orders.find({
+            account_id: accountId,
+            status: { $in: ['processing', 'pending'] }
+        })
+            .then((orders) => {
+                if (!orders) return res.status(404).json({ message: 'orders not found' });
+                res.status(200).json(orders);
+            })
+    }
     //     // getOrderListByAccountId(req, res, next) {
     //     //     Orders.find({
     //     //         // accountId: req.params.accountId,
@@ -269,231 +268,297 @@ class OrderController {
     //     //             res.status(500).json({ error: err.message });
     //     //         });
     //     // }
-    //     confirmOrder(req, res, next) {
-    //         Orders.findByIdAndUpdate(req.params.orderId, { status: 'processing' }, { new: true })
-    //             .populate('account_id', 'username')
-    //             .then((order) => {
-    //                 if (!order) return res.status(404).json({ message: 'order not found' });
-    //                 res.status(200).json(order);
-    //                 let updateData = req.body.updateData;
-    //                 const updatePantShirtQuantity = updateData.pant_shirt_size_detail_id.map((id, index) => {
-    //                     if (id) {
-    //                         return pantShirtSizeDetail.findById(id)
-    //                             .then((pantShirtDetail) => {
-    //                                 if (pantShirtDetail) {
-    //                                     const newQuantity = pantShirtDetail.quantity - updateData.quantities[index];
-    //                                     return pantShirtSizeDetail.findByIdAndUpdate(
-    //                                         id,
-    //                                         { quantity: newQuantity },
-    //                                         { new: true }
-    //                                     );
-    //                                 } else {
-    //                                     throw new Error(`PantShirtSizeDetail with ID ${id} not found`);
-    //                                 }
-    //                             });
-    //                     } else {
-    //                         return Promise.resolve();
-    //                     }
-    //                 });
-    //                 const updateShoesQuantity = updateData.shoes_size_detail_id.map((id, index) => {
-    //                     if (id) {
-    //                         return shoesSizeDetail.findById(id)
-    //                             .then((shoesDetail) => {
-    //                                 if (shoesDetail) {
-    //                                     const newQuantity = shoesDetail.quantity - updateData.quantities[index];
-    //                                     return shoesSizeDetail.findByIdAndUpdate(
-    //                                         id,
-    //                                         { quantity: newQuantity },
-    //                                         { new: true }
-    //                                     );
-    //                                 }
-    //                             })
-    //                     } else {
-    //                         return Promise.resolve();
-    //                     }
-    //                 });
-    //                 const updateAccessoryQuantity = updateData.accessory_id.map((id, index) => {
-    //                     if (id) {
-    //                         return Accessory.findById(id)
-    //                             .then((accessory) => {
-    //                                 if (accessory) {
-    //                                     const newQuantity = accessory.quantity - updateData.quantities[index];
-    //                                     return Accessory.findByIdAndUpdate(
-    //                                         id,
-    //                                         { quantity: newQuantity },
-    //                                         { new: true }
-    //                                     );
-    //                                 }
-    //                             })
-    //                     } else {
-    //                         Promise.resolve();
-    //                     }
-    //                 });
-    //                 Promise.all([updatePantShirtQuantity, updateShoesQuantity, updateAccessoryQuantity])
-    //                     .then(() => {
-    //                         setTimeout(() => {
-    //                             Orders.findByIdAndUpdate(req.params.orderId, { status: 'delivered' }, { new: true })
-    //                                 .then(() => {
-    //                                     console.log('order has been delivered');
-    //                                 })
-    //                                 .catch((err) => {
-    //                                     console.log('Error updating order status to delivered', err);
-    //                                 });
-    //                         }, 10000)
-    //                     })
-    //             })
-    //             .catch((err) => {
-    //                 res.status(500).json({ error: err.message });
-    //             });
-    //     }
-    //     cancelOrder(req, res, next) {
-    //         Orders.findByIdAndUpdate(req.params.orderId, { status: 'cancelled' }, { new: true })
-    //             .populate('account_id', 'username')
-    //             .then((order) => {
-    //                 if (!order) return res.status(404).json({ message: 'order not found' });
-    //                 res.status(200).json(order);
-    //             })
-    //             .catch((err) => {
-    //                 res.status(500).json({ error: err.message });
-    //             });
-    //     }
+    confirmOrder(req, res, next) {
+        Orders.findByIdAndUpdate(req.params.orderId, { status: 'processing' }, { new: true })
+            .populate('account_id', 'username')
+            .then((order) => {
+                if (!order) return res.status(404).json({ message: 'order not found' });
+                res.status(200).json(order);
+                let updateData = req.body.updateData;
+                const updateProductQuantity = updateData.product_size_id.map((id, index) => {
+                    if (id) {
+                        return ProductSizes.findById(id)
+                            .then((productDetail) => {
+                                if (productDetail) {
+                                    const newQuantity = productDetail.quantity - updateData.quantities[index];
+                                    return ProductSizes.findByIdAndUpdate(
+                                        id,
+                                        { quantity: newQuantity },
+                                        { new: true }
+                                    );
+                                } else {
+                                    throw new Error(`PantShirtSizeDetail with ID ${id} not found`);
+                                }
+                            });
+                    } else {
+                        return Promise.resolve();
+                    }
+                });
+                Promise.all(updateProductQuantity)
+                    .then(() => {
+                        setTimeout(() => {
+                            Orders.findByIdAndUpdate(req.params.orderId, { status: 'delivered' }, { new: true })
+                                .then(() => {
+                                    console.log('order has been delivered');
+                                })
+                                .catch((err) => {
+                                    console.log('Error updating order status to delivered', err);
+                                });
+                        }, 10000)
+                    })
+            })
+            .catch((err) => {
+                res.status(500).json({ error: err.message });
+            });
+    }
+    cancelOrder(req, res, next) {
+        Orders.findByIdAndUpdate(req.params.orderId, { status: 'cancelled' }, { new: true })
+            .populate('account_id', 'username')
+            .then((order) => {
+                if (!order) return res.status(404).json({ message: 'order not found' });
+                res.status(200).json(order);
+            })
+            .catch((err) => {
+                res.status(500).json({ error: err.message });
+            });
+    }
 
-    //     shippedOrder(req, res, next) {
-    //         Orders.findByIdAndUpdate(req.params.orderId, { status: 'shipped' }, { new: true })
-    //             .populate('account_id', 'username')
-    //             .then((order) => {
-    //                 if (!order) return res.status(404).json({ message: 'order not found' });
-    //                 res.status(200).json(order);
-    //             })
-    //             .catch((err) => {
-    //                 res.status(500).json({ error: err.message });
-    //             });
-    //     }
-    //     getOrderDetails(req, res, next) {
-    //         OrderDetails.find({ order_id: req.params.orderId })
-    //             .populate('pant_shirt_size_detail_id')
-    //             .populate('shoes_size_detail_id')
-    //             .populate('accessory_id')
-    //             .then((details) => {
-    //                 if (!details.length) return res.status(404).json({ message: 'Order details not found' });
+    shippedOrder(req, res, next) {
+        Orders.findByIdAndUpdate(req.params.orderId, { status: 'shipped' }, { new: true })
+            .populate('account_id', 'username')
+            .then((order) => {
+                if (!order) return res.status(404).json({ message: 'order not found' });
+                res.status(200).json(order);
+            })
+            .catch((err) => {
+                res.status(500).json({ error: err.message });
+            });
+    }
+    async getOrderDetails(req, res, next) {
+        try {
+            const carts = await OrderDetails.aggregate([
+                {
+                    $lookup: {
+                        from: 'product_size',
+                        localField: 'product_size_id',
+                        foreignField: '_id',
+                        as: 'product_size_info',
+                    },
+                },
+                { $unwind: '$product_size_info' },
+                {
+                    $lookup: {
+                        from: 'sizes',
+                        localField: 'product_size_info.size_id',
+                        foreignField: '_id',
+                        as: 'product_size_name_info',
+                    },
+                },
+                { $unwind: { path: '$product_size_name_info', preserveNullAndEmptyArrays: true } },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: 'product_size_info.product_id',
+                        foreignField: '_id',
+                        as: 'product_info',
+                    },
+                },
+                { $unwind: { path: '$product_info', preserveNullAndEmptyArrays: true } },
+                {
+                    $lookup: {
+                        from: 'discounts',
+                        localField: 'product_info.discount_id',
+                        foreignField: '_id',
+                        as: 'product_discount_info',
+                    },
+                },
+                { $unwind: { path: '$product_discount_info', preserveNullAndEmptyArrays: true } },
+                {
+                    $lookup: {
+                        from: 'images',
+                        localField: 'product_info._id',
+                        foreignField: 'product_id',
+                        as: 'product_images_info',
+                    },
+                },
+                { $unwind: { path: '$product_images_info', preserveNullAndEmptyArrays: true } },
+                {
+                    $group: {
+                        _id: '$_id',
+                        product_size_name: { $first: '$product_size_name_info.name' },
+                        product_name: { $first: '$product_info.name' },
+                        price: { $first: '$product_info.price' },
+                        images: { $push: '$product_images_info' },
+                        discount: { $first: '$product_discount_info.percent' },
+                        product_size_id: { $first: '$product_size_info._id' },
+                        quantity: { $first: '$product_size_info.quantity' },
+                        cartQuantity: { $first: '$quantity' },
+                    },
+                },
 
-    //                 const shirtPromises = details.map((product) =>
-    //                     Tshirt.findOne({ _id: product.pant_shirt_size_detail_id?.tshirt_id })
-    //                 );
-    //                 const pantPromises = details.map((product) =>
-    //                     Pant.findOne({ _id: product.pant_shirt_size_detail_id?.pant_id })
-    //                 );
-    //                 const shoesPromises = details.map((shoes) =>
-    //                     Shoes.findOne({ _id: shoes.shoes_size_detail_id?.shoes_id })
-    //                 );
-    //                 const accessoriesPromises = details.map((accessories) =>
-    //                     Accessory.findOne({ _id: accessories.accessory_id })
-    //                 );
-    //                 const imagePromises = details.map((detail) => {
+                {
+                    $addFields: {
+                        image: {
+                            $cond: {
+                                if: { $gt: [{ $size: '$images' }, 0] },
+                                then: {
+                                    $concat: [
+                                        '/images/upload/',
+                                        { $toString: '$_id' },
+                                        '/',
+                                        { $toString: { $arrayElemAt: ['$images._id', 0] } },
+                                        { $arrayElemAt: ['$images.file_extension', 0] }
+                                    ]
+                                },
+                                else: ''
+                            },
+                        },
+                    }
+                },
+
+                {
+                    $project: {
+                        _id: 1,
+                        product_size_name: 1,
+                        product_name: 1,
+                        price: 1,
+                        discount: 1,
+                        image: 1,
+                        product_size_id: 1,
+                        quantity: 1,
+                        cartQuantity: 1,
+                    },
+                }
+            ]);
+
+            res.status(200).json({ data: carts });
+        } catch (error) {
+            next(error);
+        }
+        // OrderDetails.find({ order_id: req.params.orderId })
+        //     .populate('pant_shirt_size_detail_id')
+        //     .populate('shoes_size_detail_id')
+        //     .populate('accessory_id')
+        //     .then((details) => {
+        //         if (!details.length) return res.status(404).json({ message: 'Order details not found' });
+
+        //         const shirtPromises = details.map((product) =>
+        //             Tshirt.findOne({ _id: product.pant_shirt_size_detail_id?.tshirt_id })
+        //         );
+        //         const pantPromises = details.map((product) =>
+        //             Pant.findOne({ _id: product.pant_shirt_size_detail_id?.pant_id })
+        //         );
+        //         const shoesPromises = details.map((shoes) =>
+        //             Shoes.findOne({ _id: shoes.shoes_size_detail_id?.shoes_id })
+        //         );
+        //         const accessoriesPromises = details.map((accessories) =>
+        //             Accessory.findOne({ _id: accessories.accessory_id })
+        //         );
+        //         const imagePromises = details.map((detail) => {
 
 
-    //                     if (detail.pant_shirt_size_detail_id?.tshirt_id) {
-    //                         return Image.findOne({ tshirt_id: detail.pant_shirt_size_detail_id.tshirt_id });
-    //                     } else if (detail.pant_shirt_size_detail_id?.pant_id) {
-    //                         return Image.findOne({ pant_id: detail.pant_shirt_size_detail_id.pant_id });
-    //                     } else if (detail.shoes_size_detail_id) {
-    //                         return Image.findOne({ shoes_id: detail.shoes_size_detail_id.shoes_id });
-    //                     } else if (detail.accessory_id) {
-    //                         return Image.findOne({ accessory_id: detail.accessory_id });
-    //                     }
-    //                     return null;
-    //                 });
+        //             if (detail.pant_shirt_size_detail_id?.tshirt_id) {
+        //                 return Image.findOne({ tshirt_id: detail.pant_shirt_size_detail_id.tshirt_id });
+        //             } else if (detail.pant_shirt_size_detail_id?.pant_id) {
+        //                 return Image.findOne({ pant_id: detail.pant_shirt_size_detail_id.pant_id });
+        //             } else if (detail.shoes_size_detail_id) {
+        //                 return Image.findOne({ shoes_id: detail.shoes_size_detail_id.shoes_id });
+        //             } else if (detail.accessory_id) {
+        //                 return Image.findOne({ accessory_id: detail.accessory_id });
+        //             }
+        //             return null;
+        //         });
 
-    //                 const shirtSizePromises = details.map((product) =>
-    //                     TshirtPantSize.findOne({ _id: product.pant_shirt_size_detail_id?.size_id })
-    //                 );
-    //                 const pantSizePromises = details.map((product) =>
-    //                     TshirtPantSize.findOne({ _id: product.pant_shirt_size_detail_id?.size_id })
-    //                 );
-    //                 const shoesSizePromises = details.map((shoes) =>
-    //                     ShoesSize.findOne({ _id: shoes.shoes_size_detail_id?.size_id })
-    //                 );
-    //                 const discountPromises = details.map(async (cart) => {
-    //                     let discountId = null;
+        //         const shirtSizePromises = details.map((product) =>
+        //             TshirtPantSize.findOne({ _id: product.pant_shirt_size_detail_id?.size_id })
+        //         );
+        //         const pantSizePromises = details.map((product) =>
+        //             TshirtPantSize.findOne({ _id: product.pant_shirt_size_detail_id?.size_id })
+        //         );
+        //         const shoesSizePromises = details.map((shoes) =>
+        //             ShoesSize.findOne({ _id: shoes.shoes_size_detail_id?.size_id })
+        //         );
+        //         const discountPromises = details.map(async (cart) => {
+        //             let discountId = null;
 
-    //                     if (cart.pant_shirt_size_detail_id) {
-    //                         const pantShirtDetail = cart.pant_shirt_size_detail_id;
-    //                         console.log(pantShirtDetail);
+        //             if (cart.pant_shirt_size_detail_id) {
+        //                 const pantShirtDetail = cart.pant_shirt_size_detail_id;
+        //                 console.log(pantShirtDetail);
 
-    //                         if (pantShirtDetail.tshirt_id) {
-    //                             const tshirt = await Tshirt.findById(pantShirtDetail.tshirt_id);
-    //                             discountId = tshirt?.discount_id;
-    //                             console.log(tshirt);
-    //                         }
-    //                         if (!discountId && pantShirtDetail.pant_id) {
-    //                             const pant = await Pant.findById(pantShirtDetail.pant_id);
-    //                             discountId = pant?.discount_id;
+        //                 if (pantShirtDetail.tshirt_id) {
+        //                     const tshirt = await Tshirt.findById(pantShirtDetail.tshirt_id);
+        //                     discountId = tshirt?.discount_id;
+        //                     console.log(tshirt);
+        //                 }
+        //                 if (!discountId && pantShirtDetail.pant_id) {
+        //                     const pant = await Pant.findById(pantShirtDetail.pant_id);
+        //                     discountId = pant?.discount_id;
 
-    //                         }
-    //                     }
+        //                 }
+        //             }
 
-    //                     if (!discountId && cart.shoes_size_detail_id) {
-    //                         const shoesDetail = cart.shoes_size_detail_id;
-    //                         const shoes = await Shoes.findById(shoesDetail.shoes_id);
-    //                         discountId = shoes?.discount_id;
-    //                     }
+        //             if (!discountId && cart.shoes_size_detail_id) {
+        //                 const shoesDetail = cart.shoes_size_detail_id;
+        //                 const shoes = await Shoes.findById(shoesDetail.shoes_id);
+        //                 discountId = shoes?.discount_id;
+        //             }
 
-    //                     if (!discountId && cart.accessory_id) {
-    //                         const accessory = await Accessory.findById(cart.accessory_id);
-    //                         discountId = accessory?.discount_id;
-    //                     }
+        //             if (!discountId && cart.accessory_id) {
+        //                 const accessory = await Accessory.findById(cart.accessory_id);
+        //                 discountId = accessory?.discount_id;
+        //             }
 
-    //                     return discountId ? Discounts.findById(discountId) : null;
-    //                 });
-    //                 Promise.all([
-    //                     Promise.all(shirtPromises),
-    //                     Promise.all(pantPromises),
-    //                     Promise.all(shoesPromises),
-    //                     Promise.all(accessoriesPromises),
-    //                     Promise.all(imagePromises),
-    //                     Promise.all(shirtSizePromises),
-    //                     Promise.all(pantSizePromises),
-    //                     Promise.all(shoesSizePromises),
-    //                     Promise.all(discountPromises)
-    //                 ])
-    //                     .then(([shirts, pants, shoes, accessories, images, shirtSizes, pantSizes, shoesSizes, discountResults]) => {
-    //                         const combinedData = details.map((detail, index) => {
-    //                             console.log('images', images);
+        //             return discountId ? Discounts.findById(discountId) : null;
+        //         });
+        //         Promise.all([
+        //             Promise.all(shirtPromises),
+        //             Promise.all(pantPromises),
+        //             Promise.all(shoesPromises),
+        //             Promise.all(accessoriesPromises),
+        //             Promise.all(imagePromises),
+        //             Promise.all(shirtSizePromises),
+        //             Promise.all(pantSizePromises),
+        //             Promise.all(shoesSizePromises),
+        //             Promise.all(discountPromises)
+        //         ])
+        //             .then(([shirts, pants, shoes, accessories, images, shirtSizes, pantSizes, shoesSizes, discountResults]) => {
+        //                 const combinedData = details.map((detail, index) => {
+        //                     console.log('images', images);
 
-    //                             const detailData = detail.toObject();
+        //                     const detailData = detail.toObject();
 
-    //                             const productData = shirts[index] || pants[index] || shoes[index] || accessories[index];
-    //                             const productImage = images[index];
-    //                             const sizeData = shirtSizes[index] || pantSizes[index] || shoesSizes[index];
-    //                             const discountData = discountResults[index];
-    //                             return {
-    //                                 ...detailData,
-    //                                 product: productData ? {
-    //                                     id: productData._id,
-    //                                     name: productData.name,
-    //                                     price: productData.price,
-    //                                 } : null,
-    //                                 productImage: productImage ? {
-    //                                     id: productImage._id,
-    //                                     file_extension: productImage.file_extension,
-    //                                 } : null,
-    //                                 size: sizeData ? {
-    //                                     size_name: sizeData.size_name,
-    //                                 } : null,
-    //                                 discount: discountData ? discountData.percent : null,
-    //                             };
-    //                         });
+        //                     const productData = shirts[index] || pants[index] || shoes[index] || accessories[index];
+        //                     const productImage = images[index];
+        //                     const sizeData = shirtSizes[index] || pantSizes[index] || shoesSizes[index];
+        //                     const discountData = discountResults[index];
+        //                     return {
+        //                         ...detailData,
+        //                         product: productData ? {
+        //                             id: productData._id,
+        //                             name: productData.name,
+        //                             price: productData.price,
+        //                         } : null,
+        //                         productImage: productImage ? {
+        //                             id: productImage._id,
+        //                             file_extension: productImage.file_extension,
+        //                         } : null,
+        //                         size: sizeData ? {
+        //                             size_name: sizeData.size_name,
+        //                         } : null,
+        //                         discount: discountData ? discountData.percent : null,
+        //                     };
+        //                 });
 
-    //                         res.status(200).json(combinedData);
-    //                     })
-    //                     .catch((err) => {
-    //                         res.status(500).json({ error: err.message });
-    //                     });
-    //             })
-    //             .catch((err) => {
-    //                 res.status(500).json({ error: err.message });
-    //             });
-    //     }
+        //                 res.status(200).json(combinedData);
+        //             })
+        //             .catch((err) => {
+        //                 res.status(500).json({ error: err.message });
+        //             });
+        //     })
+        //     .catch((err) => {
+        //         res.status(500).json({ error: err.message });
+        //     });
+    }
     async getTop10ProductsByCategory(req, res, next) {
         try {
             const topProducts = await OrderDetails.aggregate([

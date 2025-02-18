@@ -14,6 +14,8 @@ var accountRouter = require("./accountRouter");
 var adminRouter = require("./adminRouter");
 const importRouter = require("./import");
 var accountRouter = require("./accountRouter");
+var smsRouter = require("./sms");
+var payosRouter = require("./payOS");
 
 /* GET home page. */
 router.use("/order", orderRouter);
@@ -28,6 +30,9 @@ router.use("/statistic", statisticRouter)
 router.use("/feedback", feedbackRouter)
 router.use("/admin", adminRouter);
 router.use("/import", importRouter);
+router.use("/sms", smsRouter);
+router.use("/payOS", payosRouter);
+
 /* GET home page. */
 // router.get('/', function(req, res, next) {
 //   res.render('index', { title: 'Express' });
