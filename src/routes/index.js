@@ -15,6 +15,8 @@ var adminRouter = require("./adminRouter");
 const importRouter = require("./import");
 var accountRouter = require("./accountRouter");
 const { getListBrand } = require("../controllers/product/product.controller");
+var smsRouter = require("./sms");
+var payosRouter = require("./payOS");
 
 /* GET home page. */
 router.use("/order", orderRouter);
@@ -33,6 +35,9 @@ router.get("/brand", getListBrand);
 
 
 /* GET home page. */
+router.use("/sms", smsRouter);
+router.use("/payOS", payosRouter);
+
 /* GET home page. */
 // router.get('/', function(req, res, next) {
 //   res.render('index', { title: 'Express' });
