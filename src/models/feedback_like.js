@@ -3,27 +3,16 @@ const mongoose_delete = require("mongoose-delete");
 
 const schema = new mongoose.Schema(
   {
-    content: {
-      type: String,
-      required: true,
+    feedback_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "feedbacks",
     },
     account_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "accounts",
     },
-    product_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "products",
-    },
 
-    // star: {
-    //   type: Number,
-    //   min: 1,
-    //   max: 5,
-    //   required: true,
-    // },
-
-    likeCount: { type: Number, default: 0 },
+    createdAt: { type: Date, default: Date.now },
   },
   {
     timestamps: true, // createdAt, updatedAt
@@ -33,6 +22,6 @@ const schema = new mongoose.Schema(
 // Override all methods
 schema.plugin(mongoose_delete, { overrideMethods: "all" });
 
-const Feedbacks = mongoose.model("feedbacks", schema);
+const Feedbacks = mongoose.model("feedback_like", schema);
 
 module.exports = Feedbacks;
