@@ -1,6 +1,8 @@
 // const Tshirt = require("../models/tshirts");
 const Discounts = require("../../models/discounts")
 
+
+
 // const { uploadMultipleFiles } = require("../services/fileService");
 const mongoose = require('mongoose');
 const Images = require("../../models/images");
@@ -10,6 +12,7 @@ const Products = require("../../models/products");
 const Product_size = require("../../models/product_size");
 const Brand = require("../../models/brands");
 const Brands = require("../../models/brands");
+const { uploadMultipleFiles } = require("../../services/fileService");
 const currentTimeInMillis = Date.now();
 const currentDate = new Date(currentTimeInMillis);
 
@@ -17,7 +20,6 @@ const getProductList = async (req, res) => {
     try {
         let result = []
         const query = { deleted: false };
-        console.log(query.category);
 
         if (req.query.category) {
             query.category = req.query.category;
@@ -70,6 +72,7 @@ const getProductDetail = async (req, res) => {
     const brand = await Brand.findById(brand_id)
     const discount = await Discounts.findById(discount_id)
 
+
     const sizes = await Product_size.find({ product_id: product._id })
     let sizeResult = []
 
@@ -98,7 +101,10 @@ const getProductDetail = async (req, res) => {
 
     const result = {
         name: name,
-        brand: brand?.name,
+        brand: {
+            brand_id: brand?._id,
+            name: brand?.name
+        },
         price: price,
         discount: discount?.expired_at > currentDate ? {
             discount_id: discount?._id,
@@ -110,6 +116,16 @@ const getProductDetail = async (req, res) => {
 
     res.status(200).json(result)
 }
+
+const getListBrand = async (req, res) => {
+    try {
+        const brands = await Brands.find({})
+        res.status(200).json(brands)
+    } catch (error) {
+        console.error(error)
+    }
+}
+
 // const getTshirtListIncrease = async (req, res) => {
 //   try {
 //     let result = []
@@ -127,7 +143,7 @@ const getProductDetail = async (req, res) => {
 //         tshirtId: _id,
 //         tshirtName: name,
 //         tshirtPrice: price,
-//         tshirtImg: imageUrl,
+//         tshirtIDiscountModelmg: imageUrl,
 //         tshirtDiscountPercent:
 //           tshirtDiscount?.expired_at > currentDate ? tshirtDiscount?.percent : null
 //       };
@@ -235,71 +251,72 @@ const getProductDetail = async (req, res) => {
 
 // }
 
-// const addTshirt = async (req, res, next) => {
-//   let tshirtID //biến trả về cho FE để gọi api post hình
-//   try {
-//     let { name, price, size, discount_id } = req.body;
-//     let tshirt = await Tshirt.create({ name, price, discount_id });
-//     tshirtID = tshirt._id
-//     discount_id = new mongoose.Types.ObjectId(discount_id);
+const addProduct = async (req, res, next) => {
+    let productID //biến trả về cho FE để gọi api post hình
+    try {
+        let { brand, name, price, size, discount_id, category } = req.body;
+        let product = await Products.create({ category, brand, name, price, discount_id, quantity: 0 });
+        productID = product._id
+        discount_id = new mongoose.Types.ObjectId(discount_id);
+        console.log(size);
 
-//     if (size) {
-//       for (let key in size) {
-//         const sizeModel = await Pant_shirt_sizes.findOne({ size_name: key })
-//         Pant_shirt_size_detail.create({ tshirt_id: tshirt._id, size_id: sizeModel._id, quantity: size[key] })
-//       }
-//     }
+        if (size) {
+            for (let key in size) {
+                const sizeModel = await Sizes.findOne({ name: key })
+                Product_size.create({ product_id: product._id, size_id: sizeModel._id, quantity: size[key] })
+            }
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(404).json({ error });
+        next()
+    }
 
-//   } catch (error) {
-//     console.log(error);
-//     res.status(404).json({ error });
-//     next()
-//   }
+    res.status(200).json(productID)
+};
 
-//   res.status(200).json(tshirtID)
-// };
+const uploadProductImg = async (req, res) => {
+    let fileArray //mảng chứa các file hình
+    const product_id = new mongoose.Types.ObjectId(req.params.id);
 
-// const uploadTshirtImg = async (req, res) => {
-//   let fileArray //mảng chứa các file hình
-//   const shirt_id = new mongoose.Types.ObjectId(req.params.id);
+    if (req.files) {
+        if (!Array.isArray(req.files) || Object.keys(req.files).length !== 0) {
+            fileArray = Object.values(req.files);
+        }
+        await uploadMultipleFiles(fileArray, product_id);
+    }
+}
 
-//   if (req.files) {
-//     if (!Array.isArray(req.files) || Object.keys(req.files).length !== 0) {
-//       fileArray = Object.values(req.files);
-//     }
-//     await uploadMultipleFiles(fileArray, shirt_id, 'shirt');
-//   }
-// }
+const deleteProduct = async (req, res) => {
+    try {
+        const id = req.params.id;
+        let product = await Products.findOneAndUpdate({ _id: id }, { deleted: true });
+        return res.status(200).json({ product, message: "Delete successful" });
+    } catch (error) {
+        res.status(404).json({ error });
+    }
+};
 
-// const deleteTshirt = async (req, res) => {
-//   try {
-//     const id = req.params.id;
-//     let tshirt = await Tshirt.findOneAndUpdate({ _id: id }, { deleted: true });
-//     return res.status(200).json({ tshirt, message: "Delete successful" });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(404).json({ error });
-//   }
-// };
+const updateProduct = async (req, res) => {
+    try {
+        await Images.deleteMany({ product_id: req.params.id })
+        let product = await Products.findOneAndUpdate({ _id: req.params.id }, req.body);
+        await Product_size.deleteMany({ product_id: req.params.id })
 
-// const updateTshirt = async (req, res) => {
-//   try {
-//     await Images.deleteMany({ tshirt_id: req.params.id })
-//     let tshirt = await Tshirt.findOneAndUpdate({ _id: req.params.id }, req.body);
-//     await Pant_shirt_size_detail.deleteMany({ tshirt_id: req.params.id })
+        const size = req.body.size
 
-//     const size = req.body.size
-//     if (size) {
-//       for (let key in size) {
-//         const sizeModel = await Pant_shirt_sizes.findOne({ size_name: key })
-//         Pant_shirt_size_detail.create({ tshirt_id: tshirt._id, size_id: sizeModel._id, quantity: size[key] })
-//       }
-//     }
-//     res.status(200).json(tshirt._id);
-//   } catch (error) {
-//     console.log(error);
-//     res.status(404).json({ error });
-//   }
-// };
+        if (size) {
+            for (let key in size) {
+                const sizeModel = await Sizes.findOne({ name: key })
 
-module.exports = { getProductList, getProductDetail };
+                Product_size.create({ product_id: product._id, size_id: sizeModel._id, quantity: size[key] })
+            }
+        }
+        res.status(200).json(product._id);
+    } catch (error) {
+        console.log(error);
+        res.status(404).json({ error });
+    }
+};
+
+module.exports = { addProduct, getProductList, getProductDetail, getListBrand, updateProduct, uploadProductImg, deleteProduct };

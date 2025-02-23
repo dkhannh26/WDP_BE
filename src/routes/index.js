@@ -14,6 +14,7 @@ var accountRouter = require("./accountRouter");
 var adminRouter = require("./adminRouter");
 const importRouter = require("./import");
 var accountRouter = require("./accountRouter");
+const { getListBrand } = require("../controllers/product/product.controller");
 
 /* GET home page. */
 router.use("/order", orderRouter);
@@ -28,6 +29,8 @@ router.use("/statistic", statisticRouter)
 router.use("/feedback", feedbackRouter)
 router.use("/admin", adminRouter);
 router.use("/import", importRouter);
+router.get("/brand", getListBrand);
+
 
 /* GET home page. */
 /* GET home page. */

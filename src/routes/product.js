@@ -46,13 +46,20 @@ var {
 
 const { getSearchList } = require("../controllers/product.controller");
 const { getProductList,
-  getProductDetail
+  getProductDetail,
+  uploadProductImg,
+  updateProduct,
+  addProduct,
+  deleteProduct
 } = require("../controllers/product/product.controller");
 
+router.put("/:id", updateProduct);
 router.get("/:id", getProductDetail);
 router.get("/", getProductList);
 router.get('/search/:text', getSearchList)
-
+router.post("/upload/:id", uploadProductImg);
+router.post("/", addProduct);
+router.delete("/:id", deleteProduct);
 
 router.get("/tshirt/increase", getTshirtListIncrease);
 router.get("/tshirt/decrease", getTshirtListDecrease);
@@ -89,4 +96,5 @@ router.delete("/shoes/:id", deleteShoes);
 router.post("/shoes/upload/:id", uploadShoesImg);
 router.post("/shoes", addShoes);
 router.put("/shoes/:id", updateShoes);
+
 module.exports = router;

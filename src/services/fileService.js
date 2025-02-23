@@ -1,7 +1,7 @@
 const path = require("path");
 const Image = require("../models/images");
 const fs = require("fs");
-const uploadMultipleFiles = async (fileArr, id, type) => {
+const uploadMultipleFiles = async (fileArr, id) => {
   try {
     let uploadPath = path.resolve(
       __dirname,
@@ -19,27 +19,32 @@ const uploadMultipleFiles = async (fileArr, id, type) => {
       //get img's name without extension
       // let baseName = path.basename(fileArr[i].name, extname);
 
-      if (type === 'shirt') {
-        img = await Image.create({
-          file_extension: extname,
-          tshirt_id: id,
-        });
-      } else if (type === 'pant') {
-        img = await Image.create({
-          file_extension: extname,
-          pant_id: id,
-        });
-      } else if (type === 'shoes') {
-        img = await Image.create({
-          file_extension: extname,
-          shoes_id: id,
-        });
-      } else if (type === 'accessory') {
-        img = await Image.create({
-          file_extension: extname,
-          accessory_id: id,
-        });
-      }
+      img = await Image.create({
+        file_extension: extname,
+        product_id: id,
+      });
+
+      // if (type === 'shirt') {
+      //   img = await Image.create({
+      //     file_extension: extname,
+      //     tshirt_id: id,
+      //   });
+      // } else if (type === 'pant') {
+      //   img = await Image.create({
+      //     file_extension: extname,
+      //     pant_id: id,
+      //   });
+      // } else if (type === 'shoes') {
+      //   img = await Image.create({
+      //     file_extension: extname,
+      //     shoes_id: id,
+      //   });
+      // } else if (type === 'accessory') {
+      //   img = await Image.create({
+      //     file_extension: extname,
+      //     accessory_id: id,
+      //   });
+      // }
 
       // console.log(img);
 
