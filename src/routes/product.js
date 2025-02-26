@@ -44,7 +44,8 @@ var {
   getShoesListDecrease
 } = require("../controllers/shoes.controller");
 
-const { getSearchList } = require("../controllers/product.controller");
+// const { getSearchList } = require("../controllers/product.controller");
+const { getSearchList } = require("../controllers/search.controller");
 const { getProductList,
   getProductDetail,
   uploadProductImg,
