@@ -1,19 +1,9 @@
 const Orders = require('../models/orders');
-// const pantShirtSizeDetail = require('../models/pant_shirt_size_detail');
-// const shoesSizeDetail = require('../models/shoes_size_detail');
-// const Image = require('../models/images');
-// const TshirtPantSize = require('../models/pant_shirt_sizes');
-// const ShoesSize = require('../models/shoes_sizes');
-// const Accounts = require('../models/accounts');
-// const Tshirt = require('../models/tshirts');
-// const Pant = require('../models/pants');
-// const Shoes = require('../models/shoes');
-// const Accessory = require('../models/accessories')
-// const Discounts = require('../models/discounts')
 const OrderDetails = require('../models/order_detail');
 const ProductSizes = require('../models/product_size');
 const Products = require('../models/products');
 const Brands = require('../models/brands');
+const { ObjectId } = require('mongodb');
 
 class OrderController {
     getList(req, res, next) {
@@ -334,9 +324,14 @@ class OrderController {
                 res.status(500).json({ error: err.message });
             });
     }
+
     async getOrderDetails(req, res, next) {
+        const { orderId } = req.params
         try {
             const carts = await OrderDetails.aggregate([
+                {
+                    $match: { order_id: new ObjectId(orderId) }
+                },
                 {
                     $lookup: {
                         from: 'product_size',
@@ -387,6 +382,7 @@ class OrderController {
                         _id: '$_id',
                         product_size_name: { $first: '$product_size_name_info.name' },
                         product_name: { $first: '$product_info.name' },
+                        product_id: { $first: '$product_info._id' },
                         price: { $first: '$product_info.price' },
                         images: { $push: '$product_images_info' },
                         discount: { $first: '$product_discount_info.percent' },
@@ -403,9 +399,6 @@ class OrderController {
                                 if: { $gt: [{ $size: '$images' }, 0] },
                                 then: {
                                     $concat: [
-                                        '/images/upload/',
-                                        { $toString: '$_id' },
-                                        '/',
                                         { $toString: { $arrayElemAt: ['$images._id', 0] } },
                                         { $arrayElemAt: ['$images.file_extension', 0] }
                                     ]
@@ -421,6 +414,7 @@ class OrderController {
                         _id: 1,
                         product_size_name: 1,
                         product_name: 1,
+                        product_id: 1,
                         price: 1,
                         discount: 1,
                         image: 1,

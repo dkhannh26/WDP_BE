@@ -75,6 +75,7 @@ class CartController {
                         _id: '$_id',
                         product_size_name: { $first: '$product_size_name_info.name' },
                         product_name: { $first: '$product_info.name' },
+                        product_id: { $first: '$product_info._id' },
                         price: { $first: '$product_info.price' },
                         images: { $push: '$product_images_info' },
                         discount: { $first: '$product_discount_info.percent' },
@@ -91,9 +92,6 @@ class CartController {
                                 if: { $gt: [{ $size: '$images' }, 0] },
                                 then: {
                                     $concat: [
-                                        '/images/upload/',
-                                        { $toString: '$_id' },
-                                        '/',
                                         { $toString: { $arrayElemAt: ['$images._id', 0] } },
                                         { $arrayElemAt: ['$images.file_extension', 0] }
                                     ]
@@ -109,6 +107,7 @@ class CartController {
                         _id: 1,
                         product_size_name: 1,
                         product_name: 1,
+                        product_id: 1,
                         price: 1,
                         discount: 1,
                         image: 1,
