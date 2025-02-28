@@ -9,6 +9,9 @@ const Account = require("../models/accounts");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const jwt = require("jsonwebtoken");
+const { OAuth2Client } = require("google-auth-library");
+const client_id = process.env.GG_CLIENT_ID;
+const client = new OAuth2Client(client_id);
 
 const handleLogin = async (req, res) => {
   const { username, password } = req.body;
@@ -331,11 +334,13 @@ const createCart = async (req, res) => {
 const changePassword = async (req, res) => {
   let username = req.params.username;
   let { oldPassword, newPassword } = req.body;
-
+  let isMatchPassword;
   try {
     let user = await Account.findOne({ username });
-    const isMatchPassword = await bcrypt.compare(oldPassword, user.password);
-    if (isMatchPassword) {
+    if (oldPassword != null) {
+      isMatchPassword = await bcrypt.compare(oldPassword, user.password);
+    }
+    if (isMatchPassword || oldPassword === null) {
       const hashPassword = await bcrypt.hash(newPassword, saltRounds);
       await Account.updateOne({ username }, { password: hashPassword });
       return res
@@ -349,6 +354,41 @@ const changePassword = async (req, res) => {
   } catch (error) {
     console.log(error);
   }
+};
+async function verifyToken(token) {
+  const ticket = await client.verifyIdToken({
+    idToken: token,
+    audience: client_id,
+  });
+  const payload = await ticket.getPayload();
+  return payload;
+}
+const googleAuth = async (req, res) => {
+  const { token } = req.body;
+  const payloadGg = await verifyToken(token);
+
+  const { email, name, sub } = payloadGg;
+  console.log(payloadGg);
+
+  let user = await Account.findOne({ email: email });
+  if (!user) {
+    user = await Account.create({ email: email, username: email });
+  }
+  const payload = {
+    id: user._id,
+    email,
+    username: email,
+  };
+  const token_jwt = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE,
+  });
+
+  return res.status(200).json({
+    EC: 0,
+    message: "Login successful",
+    token: token_jwt,
+    role: user.role,
+  });
 };
 
 module.exports = {
@@ -365,4 +405,5 @@ module.exports = {
   verifyChange,
   createCart,
   changePassword,
+  googleAuth,
 };

@@ -14,6 +14,7 @@ const {
   checkAuth,
   createCart,
   changePassword,
+  googleAuth,
 } = require("../controllers/accountController");
 
 router.post("/login", handleLogin);
@@ -39,5 +40,7 @@ router.delete("/delete/:accountId", deleteProfile);
 router.post("/create-cart", createCart);
 
 router.put("/change-password/:username", changePassword);
+
+router.post("/google-auth", googleAuth);
 
 module.exports = router;
