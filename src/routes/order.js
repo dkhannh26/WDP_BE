@@ -13,6 +13,7 @@ orderRouter.get('/done/:accountId', orderController.getListDone);
 orderRouter.get('/:orderId', orderController.getOrderById);
 orderRouter.put('/:orderId', orderController.updateOrderById);
 orderRouter.delete('/:orderId', orderController.deleteOrderById);
+orderRouter.get('/allDetails/:accountId', orderController.getAllOrderDetails);
 orderRouter.get('/details/:orderId', orderController.getOrderDetails);
 orderRouter.put('/confirm/:orderId', orderController.confirmOrder);
 orderRouter.put('/cancel/:orderId', orderController.cancelOrder);

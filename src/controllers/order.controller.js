@@ -334,6 +334,14 @@ class OrderController {
                 },
                 {
                     $lookup: {
+                        from: 'orders',
+                        localField: 'order_id',
+                        foreignField: '_id',
+                        as: 'order_info'
+                    }
+                },
+                {
+                    $lookup: {
                         from: 'product_size',
                         localField: 'product_size_id',
                         foreignField: '_id',
@@ -380,12 +388,15 @@ class OrderController {
                 {
                     $group: {
                         _id: '$_id',
+                        createdAt: { $first: '$createdAt' },
+                        order_id: { $first: '$order_info._id' },
                         product_size_name: { $first: '$product_size_name_info.name' },
                         product_name: { $first: '$product_info.name' },
                         product_id: { $first: '$product_info._id' },
                         price: { $first: '$product_info.price' },
                         images: { $push: '$product_images_info' },
                         discount: { $first: '$product_discount_info.percent' },
+                        expired_day: { $first: '$product_discount_info.expired_at' },
                         product_size_id: { $first: '$product_size_info._id' },
                         quantity: { $first: '$product_size_info.quantity' },
                         cartQuantity: { $first: '$quantity' },
@@ -406,17 +417,27 @@ class OrderController {
                                 else: ''
                             },
                         },
+                        discount: {
+                            $cond: {
+                                if: { $lt: ['$expired_day', '$$NOW'] },
+                                then: null,
+                                else: '$discount'
+                            }
+                        },
                     }
                 },
 
                 {
                     $project: {
                         _id: 1,
+                        createdAt: 1,
+                        order_id: 1,
                         product_size_name: 1,
                         product_name: 1,
                         product_id: 1,
                         price: 1,
                         discount: 1,
+                        expired_day: 1,
                         image: 1,
                         product_size_id: 1,
                         quantity: 1,
@@ -796,6 +817,143 @@ class OrderController {
                 },
             ]);
             res.status(200).json({ data: hotBrands });
+        } catch (error) {
+            next(error);
+        }
+    }
+    async getAllOrderDetails(req, res, next) {
+        const { accountId } = req.params;
+        try {
+            const orders = await OrderDetails.aggregate([
+                {
+                    $lookup: {
+                        from: 'orders',
+                        localField: 'order_id',
+                        foreignField: '_id',
+                        as: 'order_info',
+                    },
+                },
+                { $unwind: '$order_info' },
+
+                {
+                    $lookup: {
+                        from: 'accounts',
+                        localField: 'order_info.account_id',
+                        foreignField: '_id',
+                        as: 'account_info',
+                    },
+                },
+                { $unwind: '$account_info' },
+                {
+                    $match: { 'account_info._id': new ObjectId(accountId) }
+                },
+                {
+                    $lookup: {
+                        from: 'product_size',
+                        localField: 'product_size_id',
+                        foreignField: '_id',
+                        as: 'product_size_info',
+                    },
+                },
+                { $unwind: '$product_size_info' },
+                {
+                    $lookup: {
+                        from: 'sizes',
+                        localField: 'product_size_info.size_id',
+                        foreignField: '_id',
+                        as: 'product_size_name_info',
+                    },
+                },
+                { $unwind: { path: '$product_size_name_info', preserveNullAndEmptyArrays: true } },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: 'product_size_info.product_id',
+                        foreignField: '_id',
+                        as: 'product_info',
+                    },
+                },
+                { $unwind: { path: '$product_info', preserveNullAndEmptyArrays: true } },
+                {
+                    $lookup: {
+                        from: 'discounts',
+                        localField: 'product_info.discount_id',
+                        foreignField: '_id',
+                        as: 'product_discount_info',
+                    },
+                },
+                { $unwind: { path: '$product_discount_info', preserveNullAndEmptyArrays: true } },
+                {
+                    $lookup: {
+                        from: 'images',
+                        localField: 'product_info._id',
+                        foreignField: 'product_id',
+                        as: 'product_images_info',
+                    },
+                },
+                { $unwind: { path: '$product_images_info', preserveNullAndEmptyArrays: true } },
+                {
+                    $group: {
+                        _id: '$_id',
+                        createdAt: { $first: '$createdAt' },
+                        order_id: { $first: '$order_info._id' },
+                        product_size_name: { $first: '$product_size_name_info.name' },
+                        product_name: { $first: '$product_info.name' },
+                        product_id: { $first: '$product_info._id' },
+                        price: { $first: '$product_info.price' },
+                        images: { $push: '$product_images_info' },
+                        discount: { $first: '$product_discount_info.percent' },
+                        expired_day: { $first: '$product_discount_info.expired_at' },
+                        product_size_id: { $first: '$product_size_info._id' },
+                        quantity: { $first: '$product_size_info.quantity' },
+                        cartQuantity: { $first: '$quantity' },
+                    },
+                },
+
+                {
+                    $addFields: {
+                        image: {
+                            $cond: {
+                                if: { $gt: [{ $size: '$images' }, 0] },
+                                then: {
+                                    $concat: [
+                                        { $toString: { $arrayElemAt: ['$images._id', 0] } },
+                                        { $arrayElemAt: ['$images.file_extension', 0] }
+                                    ]
+                                },
+                                else: ''
+                            },
+                        },
+                        discount: {
+                            $cond: {
+                                if: { $lt: ['$expired_day', '$$NOW'] },
+                                then: null,
+                                else: '$discount'
+                            }
+                        },
+                    }
+                },
+
+                {
+                    $project: {
+                        _id: 1,
+                        createdAt: 1,
+                        order_id: 1,
+                        product_size_name: 1,
+                        product_name: 1,
+                        product_id: 1,
+                        price: 1,
+                        discount: 1,
+                        expired_day: 1,
+                        image: 1,
+                        product_size_id: 1,
+                        quantity: 1,
+                        cartQuantity: 1,
+                    },
+                }
+            ]);
+
+            res.status(200).json({ data: orders });
         } catch (error) {
             next(error);
         }
