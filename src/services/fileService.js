@@ -86,9 +86,16 @@ const uploadMultipleFiles = async (fileArr, id) => {
 const uploadFeedbackImages = async (fileArr, id) => {
   try {
     let uploadPath = path.resolve(__dirname, "../public/images/feedback/" + id);
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true });
+    // if (!fs.existsSync(uploadPath)) {
+    //   fs.mkdirSync(uploadPath, { recursive: true });
+    // }
+
+    if (fs.existsSync(uploadPath)) {
+      await fs.promises.rm(uploadPath, { recursive: true, force: true });
     }
+    await fs.promises.mkdir(uploadPath, { recursive: true });
+    await ImageFeedback.deleteMany({ feedback_id: id });
+
     let resultArr = [];
     let countSuccess = 0;
     for (let i = 0; i < fileArr.length; i++) {

@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 const FeedBackLike = require("../models/feedback_like");
 const { uploadFeedbackImages } = require("../services/fileService");
 const ImageFeedback = require("../models/image_feedback");
+const path = require("path");
+const fs = require("fs");
 
 class FeedbackController {
   async getList(req, res, next) {
@@ -66,7 +68,6 @@ class FeedbackController {
 
   async update(req, res, next) {
     try {
-      await ImageFeedback.deleteMany({ feedback_id: req.params.feedbackId });
       const updatedFeedback = await Feedback.findOneAndUpdate(
         { _id: req.params.feedbackId },
         req.body,
@@ -80,10 +81,16 @@ class FeedbackController {
     }
   }
 
-  delete(req, res, next) {
+  async delete(req, res, next) {
+    let uploadPath = path.resolve(
+      __dirname,
+      "../public/images/feedback/" + req.params.feedbackId
+    );
+    await fs.promises.rm(uploadPath, { recursive: true, force: true });
+    await ImageFeedback.deleteMany({ feedback_id: req.params.feedbackId });
     Feedback.deleteOne({ _id: req.params.feedbackId })
       .then(() => {
-        res.send("Delete discount successfully");
+        res.send("Delete feedback successfully");
       })
       .catch((error) => {
         console.log(error);
