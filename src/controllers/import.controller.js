@@ -10,180 +10,73 @@ const Pant_shirt_sizes = require("../models/pant_shirt_sizes");
 const Pant_shirt_size_detail = require("../models/product_size");
 const Shoes_sizes = require("../models/shoes_sizes");
 const Shoes_size_detail = require("../models/shoes_size_detail");
+const Sizes = require("../models/sizes");
+
 const jwt = require("jsonwebtoken");
-
-// const createImportDetail = async (req, res) => {
-//   const { pant, tshirt, shoes, accessory } = req.body;
-
-//   try {
-//     let i = await Imports.create({});
-//     if (tshirt) {
-//       tshirt.forEach(async (e) => {
-//         let t = await Tshirts.findOne({ name: e.name });
-
-//         if (t) {
-//           let result = await Import_detail.create({
-//             tshirt_id: t._id,
-//             quantity: e.quantity,
-//           });
-
-//           i.import_detail_id.push(result._id);
-//         }
-//         await i.save();
-//       });
-//     }
-//     if (pant) {
-//       pant.forEach(async (e) => {
-//         let p = await Pants.findOne({ name: e.name });
-//         if (p) {
-//           let result = await Import_detail.create({
-//             pant_id: p._id,
-//             quantity: e.quantity,
-//           });
-//           i.import_detail_id.push(result._id);
-//           await i.save();
-//         }
-//       });
-//     }
-//     if (shoes) {
-//       shoes.forEach(async (e) => {
-//         let s = await Shoes.findOne({ name: e.name });
-//         if (s) {
-//           let result = await Import_detail.create({
-//             shoes_id: s._id,
-//             quantity: e.quantity,
-//           });
-//           i.import_detail_id.push(result._id);
-//           await i.save();
-//         }
-//       });
-//     }
-//     if (accessory) {
-//       accessory.forEach(async (e) => {
-//         let a = await Accessories.findOne({ name: e.name });
-//         if (a) {
-//           let result = await Import_detail.create({
-//             accessory_id: a._id,
-//             quantity: e.quantity,
-//           });
-//           i.import_detail_id.push(result._id);
-//           await i.save();
-//         }
-//       });
-//     }
-//     res.status(200).json(i);
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
+const ExcelJS = require("exceljs");
+const Products = require("../models/products");
+const Product_size = require("../models/product_size");
 const createImportDetail = async (req, res) => {
-  const { pant, tshirt, shoes, accessory } = req.body;
-  console.log(pant, tshirt, shoes, accessory);
-
   try {
+    const { tshirt, shoes, pant, racket, accessory } = req.body;
+    const newTshirt = tshirt.map((item) => ({ ...item, category: "tshirt" }));
+    const newShoes = shoes.map((item) => ({ ...item, category: "shoes" }));
+    const newPant = pant.map((item) => ({ ...item, category: "pant" }));
+    const newRacket = racket.map((item) => ({ ...item, category: "racket" }));
+    const newAccessory = accessory.map((item) => ({
+      ...item,
+      category: "accessory",
+    }));
+
+    const renamedData = [
+      ...newTshirt,
+      ...newShoes,
+      ...newPant,
+      ...newRacket,
+      ...newAccessory,
+    ];
+    // console.log(renamedData);
+
+    let wrongName = null;
+    if (renamedData.length === 0) {
+      return res
+        .status(400)
+        .json({ status: "fail", message: "No data provided" });
+    }
     let i = await Imports.create({ import_detail_id: [] });
+    for (const e of renamedData) {
+      // if (e.category != "shoes") {
+      let item = await Products.findOne({
+        name: new RegExp(e.name.trim(), "i"),
+        category: e.category,
+      }); //co dc product id -> can tim product_size id -> tim size id
+      if (!item) {
+        wrongName = e.name;
+        res.status(200).json({ status: "fail", name: wrongName });
+      } else {
+        let sizeItem = null;
+        sizeItem = await Sizes.findOne({
+          name: new RegExp(e.size, "i"),
+        });
+        let product = await Product_size.findOne({
+          size_id: sizeItem._id,
+          product_id: item._id,
+        });
 
-    const processItems = async (items, model, idField) => {
-      const ids = [];
-
-      for (const e of items) {
-        const item = await model.findOne({ name: e.name });
-        if (item) {
-          const result = await Import_detail.create({
-            [idField]: item._id,
-            quantity: e.quantity,
-          });
-          ids.push(result._id);
-        }
+        let i_detail = await Import_detail.create({
+          product_id: product._id,
+          quantity: e.quantity,
+        });
+        i.import_detail_id.push(i_detail._id);
       }
-
-      return ids;
-    };
-
-    const processItemsDetail = async (
-      items,
-      model,
-      idField,
-      modelSize,
-      modelDetail
-    ) => {
-      const ids = [];
-
-      for (const e of items) {
-        //co id cua sp
-        const item = await model.findOne({ name: e.name });
-        //co id cua size
-        let size = await modelSize.findOne({ size_name: e.size });
-        // console.log(size);
-
-        var query = {};
-        query[idField] = item._id;
-        // console.log(query);
-        query["size_id"] = size._id;
-        //lay id cua size detail = findOne sizeId && san pham ID
-        let sizeDetail = await modelDetail.findOne(query);
-
-        // console.log(sizeDetail);
-
-        if (item) {
-          const result = await Import_detail.create({
-            [idField]: sizeDetail._id,
-            quantity: e.quantity,
-          });
-          ids.push(result._id);
-        }
-      }
-
-      return ids;
-    };
-
-    const tshirtIds = tshirt
-      ? await processItemsDetail(
-        tshirt,
-        Tshirts,
-        "tshirt_id",
-        Pant_shirt_sizes,
-        Pant_shirt_size_detail
-      )
-      : [];
-    const pantIds = pant
-      ? await processItemsDetail(
-        pant,
-        Pants,
-        "pant_id",
-        Pant_shirt_sizes,
-        Pant_shirt_size_detail
-      )
-      : [];
-    const shoeIds = shoes
-      ? await processItemsDetail(
-        shoes,
-        Shoes,
-        "shoes_id",
-        Shoes_sizes,
-        Shoes_size_detail
-      )
-      : [];
-    const accessoryIds = accessory
-      ? await processItems(accessory, Accessories, "accessory_id")
-      : [];
-
-    i.import_detail_id.push(
-      ...tshirtIds,
-      ...pantIds,
-      ...shoeIds,
-      ...accessoryIds
-    );
-
+    }
     await i.save();
-
-    res.status(200).json(i);
+    res.status(200).json({ status: "ok" });
   } catch (error) {
     console.log(error);
-    res.status(400).json(error);
   }
 };
+
 const listImport = async (req, res) => {
   try {
     let list = await Imports.find({}).populate("import_detail_id");
@@ -196,6 +89,7 @@ const listImport = async (req, res) => {
 
         e.import_detail_id.forEach((detail) => {
           total += detail.quantity;
+          // console.log(detail);
         });
         item.quantity = total;
         if (confirm) {
@@ -218,49 +112,23 @@ const getDetailImport = async (req, res) => {
   try {
     let detail = await Imports.findOne({ _id: id });
     //co import => co import detail => co pro size detail => co pro_id && size _id => co pro_name && size_name
+
     const fetchProduct = async (detailItem) => {
-      if (detailItem.tshirt_id) {
-        let detail = await Pant_shirt_size_detail.findOne({
-          _id: detailItem.tshirt_id,
+      if (detailItem.product_id) {
+        //neu co product size detail
+        let productSizeDetail = await Product_size.findOne({
+          _id: detailItem.product_id,
         });
-        let product = await Tshirts.findOne({ _id: detail.tshirt_id });
-        let size = await Pant_shirt_sizes.findOne({ _id: detail.size_id });
+        let product = await Products.findOne({
+          _id: productSizeDetail.product_id,
+        });
+        let size = await Sizes.findOne({
+          _id: productSizeDetail.size_id,
+        });
 
         return {
           name: product.name,
-          size: size.size_name,
-          price: product.price,
-        };
-      } else if (detailItem.pant_id) {
-        let detail = await Pant_shirt_size_detail.findOne({
-          _id: detailItem.pant_id,
-        });
-        let product = await Pants.findOne({ _id: detail.pant_id });
-        console.log(product);
-
-        let size = await Pant_shirt_sizes.findOne({ _id: detail.size_id });
-        return {
-          name: product.name,
-          size: size.size_name,
-          price: product.price,
-        };
-      } else if (detailItem.accessory_id) {
-        let product = await Accessories.findOne({
-          _id: detailItem.accessory_id,
-        });
-        return {
-          name: product.name,
-          price: product.price,
-        };
-      } else {
-        let detail = await Shoes_size_detail.findOne({
-          _id: detailItem.shoes_id,
-        });
-        let product = await Shoes.findOne({ _id: detail.shoes_id });
-        let size = await Shoes_sizes.findOne({ _id: detail.size_id });
-        return {
-          name: product.name,
-          size: size.size_name,
+          size: size.name,
           price: product.price,
         };
       }
@@ -274,7 +142,7 @@ const getDetailImport = async (req, res) => {
         return { ...product, quantity: detailItem.quantity };
       })
     );
-    // console.log(detailArr);
+    console.log(detailArr);
 
     res.status(200).json(detailArr);
   } catch (error) {
@@ -286,7 +154,14 @@ const getDetailImport = async (req, res) => {
 const deleteImport = async (req, res) => {
   let id = req.params.id;
   try {
-    let i = await Imports.deleteOne({ _id: id });
+    let i = await Imports.findOne({ _id: id });
+
+    let importDetailIds = i.import_detail_id;
+
+    if (importDetailIds && importDetailIds.length > 0) {
+      await Import_detail.deleteMany({ _id: { $in: importDetailIds } });
+    }
+    await i.deleteOne();
     res.status(200).json(i);
   } catch (error) {
     console.log(error);
@@ -299,7 +174,7 @@ const confirmImport = async (req, res) => {
     const token = req.headers["authorization"]?.split(" ")[1];
 
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    const { username, email, password, phone, address, role } = decoded;
+    const { username } = decoded;
 
     let user = await Account.findOne({ username });
 
@@ -311,37 +186,10 @@ const confirmImport = async (req, res) => {
     let imports = await Imports.findOne({ _id: id });
     imports.import_detail_id.forEach(async (e) => {
       let i = await Import_detail.findOne({ _id: e._id });
-      if (i.tshirt_id) {
-        await Pant_shirt_size_detail.updateOne(
-          {
-            _id: i.tshirt_id,
-          },
-          {
-            $inc: { quantity: i.quantity },
-          }
-        );
-      } else if (i.pant_id) {
-        await Pant_shirt_size_detail.updateOne(
-          {
-            _id: i.pant_id,
-          },
-          {
-            $inc: { quantity: i.quantity },
-          }
-        );
-      } else if (i.accessory_id) {
-        await Accessories.updateOne(
-          { _id: i.accessory_id },
+      if (i.product_id) {
+        await Product_size.updateOne(
+          { _id: i.product_id },
           { $inc: { quantity: i.quantity } }
-        );
-      } else {
-        await Shoes_size_detail.updateOne(
-          {
-            _id: i.shoes_id,
-          },
-          {
-            $inc: { quantity: i.quantity },
-          }
         );
       }
     });
@@ -352,10 +200,139 @@ const confirmImport = async (req, res) => {
   }
 };
 
+const getTemplateExcel = async (req, res) => {
+  try {
+    // Tạo workbook
+    const workbook = new ExcelJS.Workbook();
+    const worksheet1 = workbook.addWorksheet("tshirt");
+    const worksheet2 = workbook.addWorksheet("shoes");
+    const worksheet3 = workbook.addWorksheet("pant");
+    const worksheet4 = workbook.addWorksheet("accessory");
+    const worksheet5 = workbook.addWorksheet("racket");
+    worksheet1.getRow(1).font = { bold: true };
+    worksheet1.getRow(1).alignment = {
+      vertical: "middle",
+      horizontal: "center",
+    };
+    worksheet2.getRow(1).font = { bold: true };
+    worksheet2.getRow(1).alignment = {
+      vertical: "middle",
+      horizontal: "center",
+    };
+    worksheet3.getRow(1).font = { bold: true };
+    worksheet3.getRow(1).alignment = {
+      vertical: "middle",
+      horizontal: "center",
+    };
+    worksheet4.getRow(1).font = { bold: true };
+    worksheet4.getRow(1).alignment = {
+      vertical: "middle",
+      horizontal: "center",
+    };
+    worksheet5.getRow(1).font = { bold: true };
+    worksheet5.getRow(1).alignment = {
+      vertical: "middle",
+      horizontal: "center",
+    };
+    worksheet1.columns = [
+      { header: "name", key: "name", width: 30 },
+      { header: "quantity", key: "quantity", width: 20 },
+
+      { header: "size", key: "size", width: 20 },
+    ];
+
+    worksheet1.addRows([
+      {
+        name: "tshirt example",
+        quantity: "20",
+        size: "L",
+      },
+    ]);
+
+    worksheet2.columns = [
+      { header: "name", key: "name", width: 30 },
+      { header: "quantity", key: "quantity", width: 20 },
+
+      { header: "size", key: "size", width: 20 },
+    ];
+
+    worksheet2.addRows([
+      {
+        name: "shoes example",
+        quantity: "20",
+        size: "42",
+      },
+    ]);
+
+    worksheet3.columns = [
+      { header: "name", key: "name", width: 30 },
+      { header: "quantity", key: "quantity", width: 20 },
+
+      { header: "size", key: "size", width: 20 },
+    ];
+
+    worksheet3.addRows([
+      {
+        name: "pant example",
+        quantity: "20",
+        size: "L",
+      },
+    ]);
+
+    worksheet4.columns = [
+      { header: "name", key: "name", width: 30 },
+      { header: "quantity", key: "quantity", width: 20 },
+      { header: "size", key: "size", width: 20 },
+    ];
+
+    worksheet4.addRows([
+      {
+        name: "accessories example",
+        quantity: "20",
+        size: "ONE SIZE",
+      },
+    ]);
+
+    worksheet5.columns = [
+      { header: "name", key: "name", width: 30 },
+      { header: "quantity", key: "quantity", width: 20 },
+
+      { header: "size", key: "size", width: 20 },
+    ];
+
+    worksheet5.addRows([
+      {
+        name: "racket example",
+        quantity: "20",
+        size: "4U",
+      },
+    ]);
+
+    // Thiết lập header cho response
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=example-import.xlsx"
+    );
+
+    console.log("Generating Excel file...");
+
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (error) {
+    console.error("Error generating Excel file:", error);
+    res.status(500).send("Error generating Excel file");
+  }
+};
+
 module.exports = {
   createImportDetail,
   listImport,
   getDetailImport,
   deleteImport,
   confirmImport,
+  getTemplateExcel,
 };
