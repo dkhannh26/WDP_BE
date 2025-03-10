@@ -3,22 +3,11 @@ const mongoose_delete = require("mongoose-delete");
 
 const schema = new mongoose.Schema(
   {
-    accessory_id: {
+    product_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "accessories",
+      ref: "product_size",
     },
-    shoes_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "shoes_size_detail",
-    },
-    pant_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "pant_shirt_size_detail",
-    },
-    tshirt_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "pant_shirt_size_detail",
-    },
+
     quantity: {
       type: Number,
       required: true,
