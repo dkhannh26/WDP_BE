@@ -371,13 +371,20 @@ const googleAuth = async (req, res) => {
   console.log(payloadGg);
 
   let user = await Account.findOne({ email: email });
+  let payload = {};
   if (!user) {
     user = await Account.create({ email: email, username: email });
+    payload = {
+      id: user._id,
+      email,
+      username: email,
+    };
   }
-  const payload = {
+
+  payload = {
     id: user._id,
     email,
-    username: email,
+    username: user.username,
   };
   const token_jwt = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: process.env.JWT_EXPIRE,
