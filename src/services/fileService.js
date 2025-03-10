@@ -11,9 +11,6 @@ const uploadMultipleFiles = async (fileArr, id) => {
     }
     await fs.promises.mkdir(uploadPath, { recursive: true });
 
-    // if (!fs.existsSync(uploadPath)) {
-    //   fs.mkdirSync(uploadPath);
-    // }
 
 
     let resultArr = [];
