@@ -1,7 +1,10 @@
-const Order_details = require("../models/order_details");
+const Order_details = require("../models/order_detail");
 const Orders = require("../models/orders");
-const Pant_shirt_size_detail = require("../models/product_size");
+const Imports = require("../models/imports");
 const excelJs = require("exceljs");
+const Product_size = require("../models/product_size");
+const Products = require("../models/products");
+const Feedbacks = require("../models/feedbacks");
 
 const getStatistic = async (req, res, next) => {
   try {
@@ -9,6 +12,48 @@ const getStatistic = async (req, res, next) => {
 
     const startDate = new Date(`${year}-01-01T00:00:00Z`);
     const endDate = new Date(`${year}-12-31T23:59:59Z`);
+
+    const imports = await Imports.find({
+      createdAt: {
+        $gte: startDate,
+        $lte: endDate,
+      }
+    })
+
+    const ratingOfCategory = await Feedbacks.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: startDate,
+            $lte: endDate
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "product_id",
+          foreignField: "_id",
+          as: "product_info"
+        }
+      },
+      {
+        $unwind: "$product_info"
+      },
+      {
+        $group: {
+          _id: "$product_info.category",
+          averageStar: { $avg: "$star" }
+        }
+      },
+      {
+        $project: {
+          category: "$_id",
+          averageStar: 1,
+          _id: 0
+        }
+      }
+    ]);
 
     const orders = await Orders.find({
       createdAt: {
@@ -24,8 +69,15 @@ const getStatistic = async (req, res, next) => {
       },
     });
 
+    const uniqueAccountIds = new Set(
+      orders.map((order) => order.account_id + "")
+      // .filter(accountId => accountId !== undefined)
+    );
+
+
+
     const totalByMonth = orders.reduce((acc, item) => {
-      const monthYear = item.createdAt.toISOString().slice(5, 7); // Lấy tháng và năm (YYYY-MM)
+      const monthYear = item.createdAt.toISOString().slice(5, 7); // Lấy tháng
 
       if (!acc[monthYear]) {
         acc[monthYear] = 0; // Khởi tạo nếu chưa có
@@ -35,74 +87,64 @@ const getStatistic = async (req, res, next) => {
       return acc;
     }, {});
 
-    console.log(totalByMonth);
+
 
     const revenue = orders
       .map((order) => order.total_price)
       .reduce((acc, price) => acc + price, 0);
 
-    const countAccessory = products.reduce((sum, item) => {
-      if (item.accessory_id) {
-        return sum + item.quantity;
-      }
-      return sum;
-    }, 0);
-
-    const countShoes = products.reduce((sum, item) => {
-      if (item.shoes_size_detail_id) {
-        return sum + item.quantity;
-      }
-      return sum;
-    }, 0);
-    const countTshirtPants = products.reduce((sum, item) => {
-      if (item.pant_shirt_size_detail_id) {
-        return sum + item.quantity;
-      }
-      return sum;
-    }, 0);
-
-    const TshirtPants = products.filter(
-      (item) => item.pant_shirt_size_detail_id !== null
-    );
     let countTshirt = 0;
     let countPant = 0;
-    await Promise.all(
-      TshirtPants.map(async (item) => {
-        const id = item.pant_shirt_size_detail_id;
-        const Tshirt = await Pant_shirt_size_detail.findOne({ _id: id });
+    let countRacket = 0;
+    let countShoes = 0;
+    let countAccessory = 0
 
-        if (Tshirt?.tshirt_id) {
+    await Promise.all(
+      products.map(async (item) => {
+        const id = item.product_size_id;
+        const product_size = await Product_size.findOne({ _id: id });
+        const product = await Products.findOne({ _id: product_size?.product_id })
+
+        if (product?.category === 'racket') {
+          countRacket += item.quantity;
+        } else if (product?.category === 'tshirt') {
           countTshirt += item.quantity;
-        } else {
+        } else if (product?.category === 'pant') {
           countPant += item.quantity;
+        } else if (product?.category === 'shoes') {
+          countShoes += item.quantity;
+        } else if (product?.category === 'accessory') {
+          countAccessory += item.quantity;
         }
       })
     );
 
-    const uniqueAccountIds = new Set(
-      orders.map((order) => order.account_id + "")
-      // .filter(accountId => accountId !== undefined)
-    );
 
-    console.log(uniqueAccountIds.size);
 
     const rs = {
+      imports: imports?.length,
       revenue: revenue,
       products: products.length,
       orders: orders.length,
       ordersByMonth: totalByMonth,
       accountNumber: uniqueAccountIds.size,
+      ratingOfCategory: ratingOfCategory,
+      racketNumber: countRacket,
       tshirtsNumber: countTshirt,
       pantsNumber: countPant,
       shoesNumber: countShoes,
       accessories: countAccessory,
     };
 
+    // console.log(totalByMonth);
+
     res.json(rs);
   } catch (error) {
     console.log(error);
   }
 };
+
+
 const exportExcel = async (req, res, next) => {
   let { statistic, ordersByMonth, numberOfCategory } = req.body;
   try {

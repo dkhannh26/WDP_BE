@@ -16,12 +16,11 @@ const schema = new mongoose.Schema(
       ref: "products",
     },
 
-    // star: {
-    //   type: Number,
-    //   min: 1,
-    //   max: 5,
-    //   required: true,
-    // },
+    star: {
+      type: Number,
+      min: 1,
+      max: 5,
+    },
 
     likeCount: { type: Number, default: 0 },
   },
