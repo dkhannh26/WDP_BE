@@ -1,7 +1,8 @@
 var express = require("express");
 var router = express.Router();
 
-const { getSearchList } = require("../controllers/product.controller");
+// const { getSearchList } = require("../controllers/product.controller");
+const { getSearchList } = require("../controllers/search.controller");
 const { getProductList,
   getProductDetail,
   uploadProductImg,
