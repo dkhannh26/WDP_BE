@@ -114,6 +114,8 @@ const getDetailImport = async (req, res) => {
     //co import => co import detail => co pro size detail => co pro_id && size _id => co pro_name && size_name
 
     const fetchProduct = async (detailItem) => {
+      console.log(detailItem);
+
       if (detailItem.product_id) {
         //neu co product size detail
         let productSizeDetail = await Product_size.findOne({
