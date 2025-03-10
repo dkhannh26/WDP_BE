@@ -17,6 +17,7 @@ var accountRouter = require("./accountRouter");
 const { getListBrand } = require("../controllers/product/product.controller");
 var smsRouter = require("./sms");
 var payosRouter = require("./payOS");
+var brandRouter = require("./brand")
 
 /* GET home page. */
 router.use("/order", orderRouter);
@@ -31,7 +32,7 @@ router.use("/statistic", statisticRouter)
 router.use("/feedback", feedbackRouter)
 router.use("/admin", adminRouter);
 router.use("/import", importRouter);
-router.get("/brand", getListBrand);
+router.use("/brand", brandRouter);
 
 
 /* GET home page. */
