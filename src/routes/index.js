@@ -18,6 +18,7 @@ const { getListBrand } = require("../controllers/product/product.controller");
 var smsRouter = require("./sms");
 var payosRouter = require("./payOS");
 var brandRouter = require("./brand")
+var wishlistRouter = require("./wishlist")
 
 /* GET home page. */
 router.use("/order", orderRouter);
@@ -33,6 +34,7 @@ router.use("/feedback", feedbackRouter)
 router.use("/admin", adminRouter);
 router.use("/import", importRouter);
 router.use("/brand", brandRouter);
+router.use("/wishlist", wishlistRouter);
 
 
 /* GET home page. */
