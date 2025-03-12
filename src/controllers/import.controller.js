@@ -16,6 +16,7 @@ const jwt = require("jsonwebtoken");
 const ExcelJS = require("exceljs");
 const Products = require("../models/products");
 const Product_size = require("../models/product_size");
+
 const createImportDetail = async (req, res) => {
   try {
     const { tshirt, shoes, pant, racket, accessory } = req.body;
@@ -44,34 +45,43 @@ const createImportDetail = async (req, res) => {
         .json({ status: "fail", message: "No data provided" });
     }
     let i = await Imports.create({ import_detail_id: [] });
-    for (const e of renamedData) {
-      // if (e.category != "shoes") {
-      let item = await Products.findOne({
-        name: new RegExp(e.name.trim(), "i"),
-        category: e.category,
-      }); //co dc product id -> can tim product_size id -> tim size id
-      if (!item) {
-        wrongName = e.name;
-        res.status(200).json({ status: "fail", name: wrongName });
-      } else {
-        let sizeItem = null;
-        sizeItem = await Sizes.findOne({
-          name: new RegExp(e.size, "i"),
-        });
-        let product = await Product_size.findOne({
-          size_id: sizeItem._id,
-          product_id: item._id,
-        });
 
-        let i_detail = await Import_detail.create({
-          product_id: product._id,
-          quantity: e.quantity,
-        });
-        i.import_detail_id.push(i_detail._id);
+    try {
+      for (const e of renamedData) {
+        // if (e.category != "shoes") {
+        let item = await Products.findOne({
+          name: new RegExp(e.name.trim(), "i"),
+          category: e.category,
+        }); //co dc product id -> can tim product_size id -> tim size id
+        if (!item) {
+          wrongName = e.name;
+          res.status(200).json({ status: "fail", name: wrongName });
+        } else {
+          let sizeItem = null;
+          sizeItem = await Sizes.findOne({
+            name: new RegExp(e.size, "i"),
+          });
+          let product = await Product_size.findOne({
+            size_id: sizeItem._id,
+            product_id: item._id,
+          });
+
+          let i_detail = await Import_detail.create({
+            product_id: product._id,
+            quantity: e.quantity,
+          });
+          i.import_detail_id.push(i_detail._id);
+        }
       }
+      await i.save();
+      res.status(200).json({ status: "ok" });
+    } catch (error) {
+      await Import_detail.deleteMany({
+        _id: { $in: i.import_detail_id },
+      });
+      await Imports.deleteOne({ _id: i._id });
+      console.log("haha có lỗi nè");
     }
-    await i.save();
-    res.status(200).json({ status: "ok" });
   } catch (error) {
     console.log(error);
   }
@@ -298,7 +308,6 @@ const getTemplateExcel = async (req, res) => {
     worksheet5.columns = [
       { header: "name", key: "name", width: 30 },
       { header: "quantity", key: "quantity", width: 20 },
-
       { header: "size", key: "size", width: 20 },
     ];
 

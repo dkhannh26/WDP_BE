@@ -10,6 +10,8 @@ const getStatistic = async (req, res, next) => {
   try {
     const year = req.params.year;
 
+    console.log(year);
+
     const startDate = new Date(`${year}-01-01T00:00:00Z`);
     const endDate = new Date(`${year}-12-31T23:59:59Z`);
 
@@ -67,14 +69,42 @@ const getStatistic = async (req, res, next) => {
         $gte: startDate,
         $lte: endDate,
       },
+      status: "shipped"
     });
 
-    const products = await Order_details.find({
-      createdAt: {
-        $gte: startDate,
-        $lte: endDate,
+
+
+    const products = await Orders.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: startDate,
+            $lte: endDate
+          },
+          status: "shipped"
+        }
       },
-    });
+      {
+        $lookup: {
+          from: "order_details",
+          localField: "_id",
+          foreignField: "order_id",
+          as: "order_details"
+        }
+      },
+      {
+        $unwind: "$order_details"
+      },
+      {
+        $project: {
+          order_id: "$_id",
+          createdAt: 1,
+          product_size_id: "$order_details.product_size_id",
+          quantity: "$order_details.quantity",
+        }
+      }
+    ])
+
 
     const uniqueAccountIds = new Set(
       orders.map((order) => order.account_id + "")
@@ -109,8 +139,10 @@ const getStatistic = async (req, res, next) => {
     await Promise.all(
       products.map(async (item) => {
         const id = item.product_size_id;
+
         const product_size = await Product_size.findOne({ _id: id });
         const product = await Products.findOne({ _id: product_size?.product_id })
+        console.log(product);
 
         if (product?.category === 'racket') {
           countRacket += item.quantity;
