@@ -103,7 +103,7 @@ class CartController {
                         },
                         discount: {
                             $cond: {
-                                if: { $lt: ['$expired_day', '$$NOW'] },
+                                if: { $gt: ['$expired_day', '$$NOW'] },
                                 then: null,
                                 else: '$discount'
                             }

@@ -23,7 +23,8 @@ class OrderController {
                 const orderDetailsData = orderItems.map(item => ({
                     order_id: order._id,
                     product_size_id: item.product_size_id,
-                    quantity: Number(item.quantity)
+                    quantity: Number(item.quantity),
+                    discount: Number(item.discount)
                 }));
                 console.log(orderDetailsData);
                 const orderDetails = await OrderDetails.create(orderDetailsData);
@@ -395,7 +396,7 @@ class OrderController {
                         product_id: { $first: '$product_info._id' },
                         price: { $first: '$product_info.price' },
                         images: { $push: '$product_images_info' },
-                        discount: { $first: '$product_discount_info.percent' },
+                        discount: { $first: '$discount' },
                         expired_day: { $first: '$product_discount_info.expired_at' },
                         product_size_id: { $first: '$product_size_info._id' },
                         quantity: { $first: '$product_size_info.quantity' },
@@ -419,7 +420,7 @@ class OrderController {
                         },
                         discount: {
                             $cond: {
-                                if: { $lt: ['$expired_day', '$$NOW'] },
+                                if: { $gt: ['$expired_day', '$$NOW'] },
                                 then: null,
                                 else: '$discount'
                             }
