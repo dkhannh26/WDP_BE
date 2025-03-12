@@ -16,6 +16,10 @@ const schema = new mongoose.Schema(
             required: true,
             min: 1,
         },
+        discount: {
+            type: Number,
+            required: true,
+        },
     },
     {
         timestamps: true, // createdAt, updatedAt

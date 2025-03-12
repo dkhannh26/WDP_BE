@@ -15,7 +15,8 @@ const Sizes = require('../models/sizes');
 const Product = require('../models/products');
 const { default: mongoose } = require('mongoose');
 const { ObjectId } = require('mongoose').Types;
-
+const currentTimeInMillis = Date.now();
+const currentDate = new Date(currentTimeInMillis);
 class CartController {
     async getList(req, res, next) {
         const { accountId } = req.params;
@@ -79,6 +80,7 @@ class CartController {
                         price: { $first: '$product_info.price' },
                         images: { $push: '$product_images_info' },
                         discount: { $first: '$product_discount_info.percent' },
+                        expired_day: { $first: '$product_discount_info.expired_at' },
                         product_size_id: { $first: '$product_size_info._id' },
                         quantity: { $first: '$product_size_info.quantity' },
                         cartQuantity: { $first: '$quantity' }
@@ -99,6 +101,13 @@ class CartController {
                                 else: ''
                             },
                         },
+                        discount: {
+                            $cond: {
+                                if: { $gt: ['$expired_day', '$$NOW'] },
+                                then: null,
+                                else: '$discount'
+                            }
+                        }
                     }
                 },
 
@@ -110,6 +119,7 @@ class CartController {
                         product_id: 1,
                         price: 1,
                         discount: 1,
+                        expired_day: 1,
                         image: 1,
                         product_size_id: 1,
                         quantity: 1,
