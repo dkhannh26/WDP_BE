@@ -264,7 +264,6 @@ const getTemplateExcel = async (req, res) => {
     worksheet2.columns = [
       { header: "name", key: "name", width: 30 },
       { header: "quantity", key: "quantity", width: 20 },
-
       { header: "size", key: "size", width: 20 },
     ];
 
