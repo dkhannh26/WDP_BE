@@ -104,8 +104,9 @@ class WishlistController {
                         quantity: 1,
                         cartQuantity: 1,
                     },
-                }
-            ]);
+                },
+                { $sort: { _id: 1 } }
+            ]);;
 
             res.status(200).json({ data: wishlist });
         } catch (error) {
