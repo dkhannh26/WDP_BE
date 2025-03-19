@@ -3,6 +3,7 @@ const Account = require("../models/accounts");
 const saltRounds = 10;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { getPermissionsByAccountId } = require("../services/permission");
 
 const getAccountList = async (req, res) => {
   try {
@@ -154,6 +155,9 @@ const handleLogin = async (req, res, next) => {
             message: "Username or password is incorrect",
           });
         } else {
+
+          const permissions = await getPermissionsByAccountId(user._id)
+
           const payload = {
             id: user._id,
             email: user.email,
@@ -169,6 +173,7 @@ const handleLogin = async (req, res, next) => {
             message: "Login successful",
             token: token,
             role: user.role,
+            permissions: permissions
           });
         }
       } else {

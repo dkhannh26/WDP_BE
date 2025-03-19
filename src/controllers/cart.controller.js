@@ -4,9 +4,9 @@ const Shoes = require('../models/shoes')
 const Pant = require('../models/pants');
 const Accessories = require('../models/accessories');
 const TshirtPantDetail = require('../models/product_size')
-const ShoesDetail = require('../models/shoes_size_detail');
-const TshirtPantSize = require('../models/pant_shirt_sizes')
-const ShoesSize = require('../models/shoes_sizes');
+// const ShoesDetail = require('../models/shoes_size_detail');
+// const TshirtPantSize = require('../models/pant_shirt_sizes')
+// const ShoesSize = require('../models/shoes_sizes');
 const Image = require('../models/images');
 const Account = require('../models/accounts');
 const Discounts = require('../models/discounts');
@@ -301,28 +301,7 @@ class CartController {
                 res.status(500).json({ error: err.message });
             });
     }
-    getProductSizeDetails(req, res, next) {
-        const { cartId } = req.params;
-
-        const tshirtPromise = TshirtPantDetail.find({ tshirt_id: cartId });
-        const pantPromise = TshirtPantDetail.find({ pant_id: cartId });
-        const shoesPromise = ShoesDetail.find({ shoes_id: cartId });
-        const accessoryPromise = Accessories.find({ _id: cartId });
-
-        Promise.all([tshirtPromise, pantPromise, shoesPromise, accessoryPromise])
-            .then(([tshirts, pants, shoes, accessories]) => {
-                const productDetails = {
-                    tshirts,
-                    pants,
-                    shoes,
-                    accessories
-                };
-                res.status(200).json(productDetails);
-            })
-            .catch((err) => {
-                res.status(500).json({ error: err.message });
-            });
-    }
+    z
     deleteAllCartByAccountId(req, res, next) {
         const { account_id } = req.body;
 
@@ -416,133 +395,133 @@ class CartController {
                 res.status(500).json({ error: err.message });
             });
     }
-    getCartByAccountId(req, res, next) {
-        const { accountId } = req.params;
-        // Account.findById(account_id)
-        //     .populate('cart_id')
-        //     .then((account) => {
-        //         if (!account || !account.cart_id.length) {
-        //             return res.status(404).json({ message: 'No carts found for this account' });
-        //         }
+    // getCartByAccountId(req, res, next) {
+    //     const { accountId } = req.params;
+    //     // Account.findById(account_id)
+    //     //     .populate('cart_id')
+    //     //     .then((account) => {
+    //     //         if (!account || !account.cart_id.length) {
+    //     //             return res.status(404).json({ message: 'No carts found for this account' });
+    //     //         }
 
-        //         const cartIds = account.cart_id.map(cart => cart._id);
+    //     //         const cartIds = account.cart_id.map(cart => cart._id);
 
 
-        Cart.find({ account_id: accountId })
-            .select('pant_shirt_size_detail_id shoes_size_detail_id accessory_id quantity')
-            .populate('pant_shirt_size_detail_id')
-            .populate('shoes_size_detail_id')
-            .populate('accessory_id')
-            .then((carts) => {
-                if (!carts.length) {
-                    return res.status(404).json({ message: 'No carts found for this account' });
-                }
-                const shirtImagesPromises = carts.map((cart) => {
-                    return cart.pant_shirt_size_detail_id
-                        ? Image.findOne({ tshirt_id: cart.pant_shirt_size_detail_id.tshirt_id })
-                        : null;
-                });
-                const shirtsizeTshirtPromises = carts.map((cart) => {
-                    return cart.pant_shirt_size_detail_id
-                        ? TshirtPantSize.findOne({ _id: cart.pant_shirt_size_detail_id.size_id })
-                        : null;
-                });
-                const shirtPromises = carts.map((cart) => {
-                    return cart.pant_shirt_size_detail_id
-                        ? Tshirt.findOne({ _id: cart.pant_shirt_size_detail_id.tshirt_id })
-                        : null;
-                });
-                const pantImagesPromises = carts.map((cart) => {
-                    return cart.pant_shirt_size_detail_id
-                        ? Image.findOne({ pant_id: cart.pant_shirt_size_detail_id.pant_id })
-                        : null;
-                });
-                const pantsizeTshirtPromises = carts.map((cart) => {
-                    return cart.pant_shirt_size_detail_id
-                        ? TshirtPantSize.findOne({ _id: cart.pant_shirt_size_detail_id.size_id })
-                        : null;
-                });
-                const pantPromises = carts.map((cart) => {
-                    return cart.pant_shirt_size_detail_id
-                        ? Pant.findOne({ _id: cart.pant_shirt_size_detail_id.pant_id })
-                        : null;
-                });
-                const shoesImagesPromises = carts.map((cart) => {
-                    return cart.shoes_size_detail_id
-                        ? Image.findOne({ shoes_id: cart.shoes_size_detail_id.shoes_id })
-                        : null;
-                });
-                const shoessizeTshirtPromises = carts.map((cart) => {
-                    return cart.shoes_size_detail_id
-                        ? ShoesSize.findOne({ _id: cart.shoes_size_detail_id.size_id })
-                        : null;
-                });
-                const shoesPromises = carts.map((cart) => {
-                    return cart.shoes_size_detail_id
-                        ? Shoes.findOne({ _id: cart.shoes_size_detail_id.shoes_id })
-                        : null;
-                });
-                const accessoryImagesPromises = carts.map((cart) => {
-                    return cart.accessory_id
-                        ? Image.findOne({ accessory_id: cart.accessory_id })
-                        : null;
-                });
+    //     Cart.find({ account_id: accountId })
+    //         .select('pant_shirt_size_detail_id shoes_size_detail_id accessory_id quantity')
+    //         .populate('pant_shirt_size_detail_id')
+    //         .populate('shoes_size_detail_id')
+    //         .populate('accessory_id')
+    //         .then((carts) => {
+    //             if (!carts.length) {
+    //                 return res.status(404).json({ message: 'No carts found for this account' });
+    //             }
+    //             const shirtImagesPromises = carts.map((cart) => {
+    //                 return cart.pant_shirt_size_detail_id
+    //                     ? Image.findOne({ tshirt_id: cart.pant_shirt_size_detail_id.tshirt_id })
+    //                     : null;
+    //             });
+    //             const shirtsizeTshirtPromises = carts.map((cart) => {
+    //                 return cart.pant_shirt_size_detail_id
+    //                     ? TshirtPantSize.findOne({ _id: cart.pant_shirt_size_detail_id.size_id })
+    //                     : null;
+    //             });
+    //             const shirtPromises = carts.map((cart) => {
+    //                 return cart.pant_shirt_size_detail_id
+    //                     ? Tshirt.findOne({ _id: cart.pant_shirt_size_detail_id.tshirt_id })
+    //                     : null;
+    //             });
+    //             const pantImagesPromises = carts.map((cart) => {
+    //                 return cart.pant_shirt_size_detail_id
+    //                     ? Image.findOne({ pant_id: cart.pant_shirt_size_detail_id.pant_id })
+    //                     : null;
+    //             });
+    //             const pantsizeTshirtPromises = carts.map((cart) => {
+    //                 return cart.pant_shirt_size_detail_id
+    //                     ? TshirtPantSize.findOne({ _id: cart.pant_shirt_size_detail_id.size_id })
+    //                     : null;
+    //             });
+    //             const pantPromises = carts.map((cart) => {
+    //                 return cart.pant_shirt_size_detail_id
+    //                     ? Pant.findOne({ _id: cart.pant_shirt_size_detail_id.pant_id })
+    //                     : null;
+    //             });
+    //             const shoesImagesPromises = carts.map((cart) => {
+    //                 return cart.shoes_size_detail_id
+    //                     ? Image.findOne({ shoes_id: cart.shoes_size_detail_id.shoes_id })
+    //                     : null;
+    //             });
+    //             const shoessizeTshirtPromises = carts.map((cart) => {
+    //                 return cart.shoes_size_detail_id
+    //                     ? ShoesSize.findOne({ _id: cart.shoes_size_detail_id.size_id })
+    //                     : null;
+    //             });
+    //             const shoesPromises = carts.map((cart) => {
+    //                 return cart.shoes_size_detail_id
+    //                     ? Shoes.findOne({ _id: cart.shoes_size_detail_id.shoes_id })
+    //                     : null;
+    //             });
+    //             const accessoryImagesPromises = carts.map((cart) => {
+    //                 return cart.accessory_id
+    //                     ? Image.findOne({ accessory_id: cart.accessory_id })
+    //                     : null;
+    //             });
 
-                Promise.all([
-                    Promise.all(shirtImagesPromises),
-                    Promise.all(shirtsizeTshirtPromises),
-                    Promise.all(shirtPromises),
-                    Promise.all(shoesImagesPromises),
-                    Promise.all(shoessizeTshirtPromises),
-                    Promise.all(shoesPromises),
-                    Promise.all(pantImagesPromises),
-                    Promise.all(pantsizeTshirtPromises),
-                    Promise.all(pantPromises),
-                    Promise.all(accessoryImagesPromises)
-                ])
-                    .then(([shirtImagesPromises, shirtsizeTshirtPromises, shirtPromises,
-                        shoesImagesPromises, shoessizeTshirtPromises, shoesPromises,
-                        pantImagesPromises, pantsizeTshirtPromises, pantPromises,
-                        accessoryImagesPromises]) => {
-                        const combinedData = carts.map((cart, index) => {
-                            const cartData = cart.toObject();
+    //             Promise.all([
+    //                 Promise.all(shirtImagesPromises),
+    //                 Promise.all(shirtsizeTshirtPromises),
+    //                 Promise.all(shirtPromises),
+    //                 Promise.all(shoesImagesPromises),
+    //                 Promise.all(shoessizeTshirtPromises),
+    //                 Promise.all(shoesPromises),
+    //                 Promise.all(pantImagesPromises),
+    //                 Promise.all(pantsizeTshirtPromises),
+    //                 Promise.all(pantPromises),
+    //                 Promise.all(accessoryImagesPromises)
+    //             ])
+    //                 .then(([shirtImagesPromises, shirtsizeTshirtPromises, shirtPromises,
+    //                     shoesImagesPromises, shoessizeTshirtPromises, shoesPromises,
+    //                     pantImagesPromises, pantsizeTshirtPromises, pantPromises,
+    //                     accessoryImagesPromises]) => {
+    //                     const combinedData = carts.map((cart, index) => {
+    //                         const cartData = cart.toObject();
 
-                            return {
-                                ...cartData,
-                                productImage: shirtImagesPromises[index]?.file_extension || shoesImagesPromises[index]?.file_extension || pantImagesPromises[index]?.file_extension || accessoryImagesPromises[index]?.file_extension
-                                    ? {
-                                        _id: shirtImagesPromises[index]?._id || shoesImagesPromises[index]?._id || pantImagesPromises[index]?._id || accessoryImagesPromises[index]?._id,
-                                        file_extension: shirtImagesPromises[index]?.file_extension || shoesImagesPromises[index]?.file_extension || pantImagesPromises[index]?.file_extension || accessoryImagesPromises[index]?.file_extension,
-                                    }
-                                    : null,
-                                productSize: shirtsizeTshirtPromises[index]?.size_name || shoessizeTshirtPromises[index]?.size_name || pantsizeTshirtPromises[index]?.size_name
-                                    ? {
-                                        size_name: shirtsizeTshirtPromises[index]?.size_name || shoessizeTshirtPromises[index]?.size_name || pantsizeTshirtPromises[index]?.size_name,
-                                    }
-                                    : null,
-                                product: {
-                                    name: shirtPromises[index]?.name || shoesPromises[index]?.name || pantPromises[index]?.name || cart.accessory_id.name || null,
-                                    price: shirtPromises[index]?.price || shoesPromises[index]?.price || pantPromises[index]?.price || cart.accessory_id?.price || null,
-                                    quantity: cart.quantity,
-                                }
-                            };
-                        });
+    //                         return {
+    //                             ...cartData,
+    //                             productImage: shirtImagesPromises[index]?.file_extension || shoesImagesPromises[index]?.file_extension || pantImagesPromises[index]?.file_extension || accessoryImagesPromises[index]?.file_extension
+    //                                 ? {
+    //                                     _id: shirtImagesPromises[index]?._id || shoesImagesPromises[index]?._id || pantImagesPromises[index]?._id || accessoryImagesPromises[index]?._id,
+    //                                     file_extension: shirtImagesPromises[index]?.file_extension || shoesImagesPromises[index]?.file_extension || pantImagesPromises[index]?.file_extension || accessoryImagesPromises[index]?.file_extension,
+    //                                 }
+    //                                 : null,
+    //                             productSize: shirtsizeTshirtPromises[index]?.size_name || shoessizeTshirtPromises[index]?.size_name || pantsizeTshirtPromises[index]?.size_name
+    //                                 ? {
+    //                                     size_name: shirtsizeTshirtPromises[index]?.size_name || shoessizeTshirtPromises[index]?.size_name || pantsizeTshirtPromises[index]?.size_name,
+    //                                 }
+    //                                 : null,
+    //                             product: {
+    //                                 name: shirtPromises[index]?.name || shoesPromises[index]?.name || pantPromises[index]?.name || cart.accessory_id.name || null,
+    //                                 price: shirtPromises[index]?.price || shoesPromises[index]?.price || pantPromises[index]?.price || cart.accessory_id?.price || null,
+    //                                 quantity: cart.quantity,
+    //                             }
+    //                         };
+    //                     });
 
-                        res.status(200).json(combinedData);
-                    })
-                    .catch((error) => {
-                        res.status(500).json({ error: error.message });
-                    });
-            })
-            .catch((err) => {
-                res.status(500).json({ error: err.message });
-            });
-        // })
-        // .catch((error) => {
-        //     res.status(500).json({ error: error.message });
-        // });
+    //                     res.status(200).json(combinedData);
+    //                 })
+    //                 .catch((error) => {
+    //                     res.status(500).json({ error: error.message });
+    //                 });
+    //         })
+    //         .catch((err) => {
+    //             res.status(500).json({ error: err.message });
+    //         });
+    //     // })
+    //     // .catch((error) => {
+    //     //     res.status(500).json({ error: error.message });
+    //     // });
 
-    }
+    // }
 
     // getDetailId(req, res, next) {
     //     size.find({size_name: size_name})

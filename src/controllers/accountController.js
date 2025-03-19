@@ -10,6 +10,7 @@ const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
+const { getPermissionsByAccountId } = require("../services/permission");
 const client_id = process.env.GG_CLIENT_ID;
 const client = new OAuth2Client(client_id);
 
@@ -26,6 +27,8 @@ const handleLogin = async (req, res) => {
           message: "Username or password is incorrect",
         });
       } else {
+        const permissions = await getPermissionsByAccountId(user._id)
+
         const payload = {
           id: user._id,
           email: user.email,
@@ -35,11 +38,15 @@ const handleLogin = async (req, res) => {
           expiresIn: process.env.JWT_EXPIRE,
         });
 
+
+
+
         return res.status(200).json({
           EC: 0,
           message: "Login successful",
           token: token,
           role: user.role,
+          permissions: permissions
         });
       }
     } else {

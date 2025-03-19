@@ -9,6 +9,6 @@ cartRouter.put('/:cartId', cartController.updateCartById);
 cartRouter.delete('/delete/:accountId', cartController.deleteAllCartById);
 cartRouter.delete('/:cartId', cartController.deleteCartById);
 cartRouter.delete('/:accountId', cartController.deleteAllCartByAccountId);
-cartRouter.get('/product/:cartId', cartController.getProductSizeDetails);
+// cartRouter.get('/product/:cartId', cartController.getProductSizeDetails);
 
 module.exports = cartRouter;

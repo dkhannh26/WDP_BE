@@ -1,15 +1,7 @@
 require("dotenv").config();
 const Import_detail = require("../models/import_details");
 const Imports = require("../models/imports");
-const Pants = require("../models/pants");
-const Tshirts = require("../models/tshirts");
-const Shoes = require("../models/shoes");
-const Accessories = require("../models/accessories");
 const Account = require("../models/accounts");
-const Pant_shirt_sizes = require("../models/pant_shirt_sizes");
-const Pant_shirt_size_detail = require("../models/product_size");
-const Shoes_sizes = require("../models/shoes_sizes");
-const Shoes_size_detail = require("../models/shoes_size_detail");
 const Sizes = require("../models/sizes");
 
 const jwt = require("jsonwebtoken");

@@ -10,8 +10,6 @@ const getStatistic = async (req, res, next) => {
   try {
     const year = req.params.year;
 
-    console.log(year);
-
     const startDate = new Date(`${year}-01-01T00:00:00Z`);
     const endDate = new Date(`${year}-12-31T23:59:59Z`);
 
@@ -296,4 +294,81 @@ const exportExcel = async (req, res, next) => {
   }
 };
 
-module.exports = { getStatistic, exportExcel };
+const getRatingDetail = async (req, res, next) => {
+  try {
+    const year = req.params.year;
+    const startDate = new Date(`${year}-01-01T00:00:00Z`);
+    const endDate = new Date(`${year}-12-31T23:59:59Z`);
+
+    const result = await Products.aggregate([
+      {
+        $lookup: {
+          from: "feedbacks",
+          localField: "_id",
+          foreignField: "product_id",
+          as: "reviews"
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          reviews: {
+            $filter: {
+              input: "$reviews",
+              cond: {
+                $and: [
+                  { $gte: ["$$this.createdAt", startDate] },
+                  { $lte: ["$$this.createdAt", endDate] }
+                ]
+              }
+            }
+          },
+          images: 1
+        }
+      },
+      {
+        $lookup: {
+          from: "images",
+          localField: "_id",
+          foreignField: "product_id",
+          as: "images"
+        }
+      },
+      {
+        $project: {
+          productId: "$_id",
+          productName: "$name",
+          reviewCount: { $size: "$reviews" },
+          averageStars: {
+            $cond: {
+              if: { $gt: [{ $size: "$reviews" }, 0] },
+              then: { $round: [{ $avg: "$reviews.star" }, 1] },
+              else: 0
+            }
+          },
+          image: {
+            $cond: {
+              if: { $gt: [{ $size: "$images" }, 0] },
+              then: {
+                imageId: { $arrayElemAt: ["$images._id", 0] },
+                fileExtension: { $arrayElemAt: ["$images.file_extension", 0] },
+                createdAt: { $arrayElemAt: ["$images.createdAt", 0] }
+              },
+              else: null
+            }
+          }
+        }
+      },
+      {
+        $sort: {
+          averageStars: -1
+        }
+      }
+    ]);
+    res.json(result)
+  } catch (error) {
+    console.error(error)
+  }
+}
+module.exports = { getStatistic, exportExcel, getRatingDetail };

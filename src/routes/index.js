@@ -18,7 +18,8 @@ const { getListBrand } = require("../controllers/product/product.controller");
 var smsRouter = require("./sms");
 var payosRouter = require("./payOS");
 var brandRouter = require("./brand")
-var wishlistRouter = require("./wishlist")
+var wishlistRouter = require("./wishlist");
+const permissionRouter = require("./permission");
 
 /* GET home page. */
 router.use("/order", orderRouter);
@@ -26,7 +27,7 @@ router.use("/cart", cartRouter);
 router.use("/payment", paymentRouter);
 router.use("/discount", discountRoute);
 router.use("/product", productRouter);
-router.use("/size", sizeRouter);
+// router.use("/size", sizeRouter);
 router.use("/account", accountRouter);
 router.use("/voucher", voucherRouter)
 router.use("/statistic", statisticRouter)
@@ -35,8 +36,7 @@ router.use("/admin", adminRouter);
 router.use("/import", importRouter);
 router.use("/brand", brandRouter);
 router.use("/wishlist", wishlistRouter);
-
-
+router.use("/permission", permissionRouter);
 /* GET home page. */
 router.use("/sms", smsRouter);
 router.use("/payOS", payosRouter);
