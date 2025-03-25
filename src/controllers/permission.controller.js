@@ -61,14 +61,11 @@ const updatePermission = async (req, res) => {
 const getPermissions = async (req, res) => {
     try {
         const role = await Role.findOne({ name: req.query.role });
-        console.log(role);
 
         const rolePermission = await Role_permission.find({ role_id: role._id })
             .populate('permission_id', 'name')
             .select('permission_id status')
             .lean();
-
-
 
         const filteredPermissions = rolePermission.map(item => ({
             name: item.permission_id.name,

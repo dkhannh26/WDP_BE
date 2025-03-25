@@ -20,6 +20,7 @@ var payosRouter = require("./payOS");
 var brandRouter = require("./brand")
 var wishlistRouter = require("./wishlist");
 const permissionRouter = require("./permission");
+const inventoryRouter = require("./inventory");
 
 /* GET home page. */
 router.use("/order", orderRouter);
@@ -40,7 +41,7 @@ router.use("/permission", permissionRouter);
 /* GET home page. */
 router.use("/sms", smsRouter);
 router.use("/payOS", payosRouter);
-
+router.use("/inventory", inventoryRouter);
 /* GET home page. */
 // router.get('/', function(req, res, next) {
 //   res.render('index', { title: 'Express' });
