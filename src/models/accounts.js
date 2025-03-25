@@ -28,6 +28,10 @@ const accountSchema = new mongoose.Schema({
     enum: ["user", "staff", "admin"],
     default: "user",
   },
+  countNotifications: {
+    type: Number,
+    default: 0,
+  },
 });
 
 // Override all methods

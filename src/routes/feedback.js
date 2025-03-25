@@ -13,5 +13,7 @@ feedbackRouter.delete("/:feedbackId", FeedbackController.delete);
 feedbackRouter.post("/upload/:id", FeedbackController.uploadFeedbackImg);
 
 feedbackRouter.get("/image/:id", FeedbackController.getFeedbackImg);
+feedbackRouter.get("/reply/:feedbackId", FeedbackController.getReplies);
+feedbackRouter.post("/reply/:feedbackId", FeedbackController.replyFeedback);
 
 module.exports = feedbackRouter;

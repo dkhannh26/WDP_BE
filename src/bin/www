@@ -3,12 +3,15 @@
 /**
  * Module dependencies.
  */
+
 // const port = process.env.PORT || 8080;
 require("dotenv").config();
+const { Server } = require("socket.io");
 const connection = require("../config/database");
 var app = require("../app");
 var debug = require("debug")("back-end:server");
 var http = require("http");
+const jwt = require("jsonwebtoken");
 
 /**
  * Get port from environment and store in Express.
@@ -22,6 +25,38 @@ app.set("port", port);
  */
 
 var server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
+
+io.on("connection", (socket) => {
+  const token = socket.handshake.query.token;
+
+  if (!token) {
+    console.log("No token provided by client:", socket.id);
+    socket.disconnect();
+    return;
+  }
+
+  try {
+    const { id, username } = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    socket.join(id); // Gắn socket vào room có tên là accountId
+    console.log(`User ${username} connected and joined room ${id}`);
+
+    socket.on("disconnect", () => {
+      console.log(`Client disconnected: ${username}`);
+    });
+  } catch (err) {
+    console.error("JWT Error:", err.message);
+    socket.disconnect();
+  }
+});
+var notificationRouter = require("../routes/notification")(io);
+
+app.use("/notification", notificationRouter);
 
 /**
  * Listen on provided port, on all network interfaces.
