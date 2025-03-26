@@ -29,6 +29,10 @@ const schema = new mongoose.Schema(
             required: true,
             min: 0,
         },
+        deleted_at: {
+            type: Boolean,
+            default: false
+        },
     },
     {
         timestamps: true, // createdAt, updatedAt

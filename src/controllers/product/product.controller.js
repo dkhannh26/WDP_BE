@@ -17,7 +17,7 @@ const currentDate = new Date(currentTimeInMillis);
 const getProductList = async (req, res) => {
   try {
     let result = [];
-    const query = { deleted: false };
+    const query = { deleted_at: false };
 
     if (req.query.category) {
       query.category = req.query.category;
@@ -104,9 +104,9 @@ const getProductDetail = async (req, res) => {
     discount:
       discount?.expired_at > currentDate
         ? {
-            discount_id: discount?._id,
-            percent: discount?.percent,
-          }
+          discount_id: discount?._id,
+          percent: discount?.percent,
+        }
         : null,
     size: sizeResult,
     images: imagesResult,
@@ -278,7 +278,7 @@ const addProduct = async (req, res, next) => {
 };
 
 const uploadProductImg = async (req, res) => {
-  let fileArray; //mảng chứa các file hình
+  let fileArray;
   const product_id = new mongoose.Types.ObjectId(req.params.id);
 
   if (req.files) {
@@ -294,8 +294,10 @@ const deleteProduct = async (req, res) => {
     const id = req.params.id;
     let product = await Products.findOneAndUpdate(
       { _id: id },
-      { deleted: true }
+      { deleted_at: true }
     );
+    // let product = await Products.find({ _id: id })
+    console.log(product);
     return res.status(200).json({ product, message: "Delete successful" });
   } catch (error) {
     res.status(404).json({ error });
