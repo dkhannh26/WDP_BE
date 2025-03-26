@@ -1,9 +1,11 @@
 const Account = require("../models/accounts");
 const Feedback = require("../models/feedbacks");
+const FeedbackReply = require("../models/feedback_replies");
 const mongoose = require("mongoose");
 const FeedBackLike = require("../models/feedback_like");
 const { uploadFeedbackImages } = require("../services/fileService");
 const ImageFeedback = require("../models/image_feedback");
+const { sendNotification } = require("./notification.controller");
 const path = require("path");
 const fs = require("fs");
 
@@ -59,7 +61,8 @@ class FeedbackController {
   async create(req, res, next) {
     try {
       const feedback = await Feedback.create(req.body);
-      res.json(feedback._id);
+
+      res.json(feedback);
     } catch (error) {
       console.error("Error in create:", error);
       res.status(500).json({ message: "Error creating feedback", error });
@@ -185,6 +188,29 @@ class FeedbackController {
 
     res.json(result);
   }
-}
 
+  async replyFeedback(req, res) {
+    const { feedbackId } = req.params;
+
+    const replyData = {
+      content: req.body.content,
+      account_id: req.body.account_id,
+      feedback_id: feedbackId,
+    };
+    const reply = await FeedbackReply.create(replyData);
+
+    res.status(200).json(reply);
+  }
+
+  async getReplies(req, res) {
+    const id = req.params?.feedbackId;
+    if (id) {
+      const replies = await FeedbackReply.find({
+        feedback_id: id,
+      }).populate("account_id", "username");
+
+      res.status(200).json(replies);
+    }
+  }
+}
 module.exports = new FeedbackController();
