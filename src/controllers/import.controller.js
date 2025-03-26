@@ -10,57 +10,38 @@ const Products = require("../models/products");
 const Product_size = require("../models/product_size");
 
 const createImportDetail = async (req, res) => {
+  const data = req.body;
   try {
-    const { tshirt, shoes, pant, racket, accessory } = req.body;
-    const newTshirt = tshirt.map((item) => ({ ...item, category: "tshirt" }));
-    const newShoes = shoes.map((item) => ({ ...item, category: "shoes" }));
-    const newPant = pant.map((item) => ({ ...item, category: "pant" }));
-    const newRacket = racket.map((item) => ({ ...item, category: "racket" }));
-    const newAccessory = accessory.map((item) => ({
-      ...item,
-      category: "accessory",
-    }));
-
-    const renamedData = [
-      ...newTshirt,
-      ...newShoes,
-      ...newPant,
-      ...newRacket,
-      ...newAccessory,
-    ];
-    // console.log(renamedData);
-
-    let wrongName = null;
-    if (renamedData.length === 0) {
+    if (data.length === 0) {
       return res
         .status(400)
         .json({ status: "fail", message: "No data provided" });
     }
     let i = await Imports.create({ import_detail_id: [] });
-
     try {
-      for (const e of renamedData) {
+      for (const e of data) {
         // if (e.category != "shoes") {
         let item = await Products.findOne({
-          name: new RegExp(e.name.trim(), "i"),
+          name: new RegExp(e.title.trim(), "i"), //khong phan biet hoa thuong
           category: e.category,
         }); //co dc product id -> can tim product_size id -> tim size id
-        if (!item) {
-          wrongName = e.name;
-          res.status(200).json({ status: "fail", name: wrongName });
-        } else {
-          let sizeItem = null;
-          sizeItem = await Sizes.findOne({
-            name: new RegExp(e.size, "i"),
+        let sizeNameArr = { ...e };
+        delete sizeNameArr["title"];
+        delete sizeNameArr["category"];
+        // console.log(Object.entries(sizeNameArr).length);
+        for (const [key, value] of Object.entries(sizeNameArr)) {
+          // console.log("key: " + key + " value: " + value);
+
+          let sizeItem = await Sizes.findOne({
+            name: new RegExp(key, "i"),
           });
           let product = await Product_size.findOne({
             size_id: sizeItem._id,
             product_id: item._id,
           });
-
           let i_detail = await Import_detail.create({
             product_id: product._id,
-            quantity: e.quantity,
+            quantity: value,
           });
           i.import_detail_id.push(i_detail._id);
         }
@@ -116,7 +97,7 @@ const getDetailImport = async (req, res) => {
     //co import => co import detail => co pro size detail => co pro_id && size _id => co pro_name && size_name
 
     const fetchProduct = async (detailItem) => {
-      console.log(detailItem);
+      // console.log(detailItem);
 
       if (detailItem.product_id) {
         //neu co product size detail
@@ -146,7 +127,7 @@ const getDetailImport = async (req, res) => {
         return { ...product, quantity: detailItem.quantity };
       })
     );
-    console.log(detailArr);
+    // console.log(detailArr);
 
     res.status(200).json(detailArr);
   } catch (error) {
