@@ -3,14 +3,14 @@ const Products = require("../models/products");
 
 const getInventory = async (req, res) => {
     try {
-        const products = await Products.find({ deleted_at: false })
-            .lean()
-            .exec();
+        const products = await Products.find({ deleted_at: false }).lean().exec();
 
         const productsWithSizes = await Promise.all(
             products.map(async (product) => {
-                const productSizes = await Product_size.find({ product_id: product._id })
-                    .populate('size_id')
+                const productSizes = await Product_size.find({
+                    product_id: product._id,
+                })
+                    .populate("size_id")
                     .lean()
                     .exec();
 
@@ -26,10 +26,10 @@ const getInventory = async (req, res) => {
 
         res.json(productsWithSizes);
     } catch (error) {
-        console.error('Error fetching products with sizes:', error);
+        console.error("Error fetching products with sizes:", error);
         throw error;
     }
-}
+};
 
 // Example usage
 // (async () => {
@@ -41,4 +41,4 @@ const getInventory = async (req, res) => {
 //     }
 // })();
 
-module.exports = { getInventory }
+module.exports = { getInventory };
