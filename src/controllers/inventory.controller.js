@@ -14,9 +14,6 @@ const getInventory = async (req, res) => {
                     .lean()
                     .exec();
 
-                console.log(productSizes);
-
-
                 product.sizes = productSizes.map((ps) => ({
                     size_id: ps.size_id._id,
                     size_name: ps.size_id.name,
