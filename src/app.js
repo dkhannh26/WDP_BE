@@ -14,6 +14,7 @@ const session = require("express-session");
 const connection = require("./config/database");
 const hostname = process.env.HOST_NAME;
 var indexRouter = require("./routes/index");
+const setupChat = require("./routes/chat");
 
 var app = express();
 
@@ -51,4 +52,4 @@ app.use(
 
 app.use("/", indexRouter);
 
-module.exports = app;
+module.exports = { app, setupChat };

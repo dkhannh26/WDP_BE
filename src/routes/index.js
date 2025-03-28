@@ -20,6 +20,7 @@ var payosRouter = require("./payOS");
 var brandRouter = require("./brand")
 var wishlistRouter = require("./wishlist");
 const permissionRouter = require("./permission");
+const notificationChatRouter = require("./notificationChat");
 
 /* GET home page. */
 router.use("/order", orderRouter);
@@ -40,6 +41,7 @@ router.use("/permission", permissionRouter);
 /* GET home page. */
 router.use("/sms", smsRouter);
 router.use("/payOS", payosRouter);
+router.use("/notification", notificationChatRouter)
 
 /* GET home page. */
 // router.get('/', function(req, res, next) {

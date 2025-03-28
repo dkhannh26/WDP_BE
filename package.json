@@ -41,6 +41,7 @@
     "serve-favicon": "^2.4.5",
     "set-tz": "^0.2.0",
     "sha256": "^0.2.0",
+    "socket.io": "^4.8.1",
     "vnpay": "^1.6.1"
   },
   "devDependencies": {

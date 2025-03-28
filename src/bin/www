@@ -6,9 +6,10 @@
 // const port = process.env.PORT || 8080;
 require("dotenv").config();
 const connection = require("../config/database");
-var app = require("../app");
+const { app, setupChat } = require("../app");
 var debug = require("debug")("back-end:server");
 var http = require("http");
+const { Server } = require("socket.io");
 
 /**
  * Get port from environment and store in Express.
@@ -22,6 +23,14 @@ app.set("port", port);
  */
 
 var server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3001",
+    methods: ["GET", "POST"],
+  },
+});
+setupChat(io);
 
 /**
  * Listen on provided port, on all network interfaces.
