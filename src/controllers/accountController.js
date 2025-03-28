@@ -11,6 +11,8 @@ const saltRounds = 10;
 const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
 const { getPermissionsByAccountId } = require("../services/permission");
+const Role = require("../models/roles");
+const Role_account = require("../models/role_account");
 const client_id = process.env.GG_CLIENT_ID;
 const client = new OAuth2Client(client_id);
 
@@ -27,7 +29,7 @@ const handleLogin = async (req, res) => {
           message: "Username or password is incorrect",
         });
       } else {
-        const permissions = await getPermissionsByAccountId(user._id)
+        const permissions = await getPermissionsByAccountId(user._id);
 
         const payload = {
           id: user._id,
@@ -38,15 +40,12 @@ const handleLogin = async (req, res) => {
           expiresIn: process.env.JWT_EXPIRE,
         });
 
-
-
-
         return res.status(200).json({
           EC: 0,
           message: "Login successful",
           token: token,
           role: user.role,
-          permissions: permissions
+          permissions: permissions,
         });
       }
     } else {
@@ -121,6 +120,13 @@ const createUser = async (req, res) => {
       address,
       phone,
       role,
+    });
+
+    const roleModel = await Role.findOne({ name: "customer" });
+
+    await Role_account.create({
+      role_id: roleModel._id,
+      account_id: result._id,
     });
 
     // await sendWelcomeEmail(email);
@@ -386,6 +392,12 @@ const googleAuth = async (req, res) => {
       email,
       username: email,
     };
+
+    const roleModel = await Role.findOne({ name: "customer" });
+    await Role_account.create({
+      role_id: roleModel._id,
+      account_id: user._id,
+    });
   }
 
   payload = {
@@ -393,6 +405,7 @@ const googleAuth = async (req, res) => {
     email,
     username: user.username,
   };
+
   const token_jwt = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: process.env.JWT_EXPIRE,
   });
