@@ -1,4 +1,4 @@
-const Notification = require('../models/notification_chat');
+const Notification = require('../models/chat_notification');
 
 class NotificationChatController {
     async unread(req, res, next) {

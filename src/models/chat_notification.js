@@ -11,6 +11,6 @@ const schema = new mongoose.Schema({
 
 schema.plugin(mongoose_delete, { overrideMethods: "all" });
 
-const NotificationChat = mongoose.model("notification_chat", schema);
+const ChatNotification = mongoose.model("chat_notification", schema);
 
-module.exports = NotificationChat;
+module.exports = ChatNotification;

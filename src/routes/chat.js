@@ -1,6 +1,6 @@
 const Message = require("../models/message");
 const Account = require("../models/accounts");
-const Notification = require("../models/notification_chat");
+const Notification = require("../models/chat_notification");
 const mongoose = require("mongoose");
 
 const setupChat = (io) => {
