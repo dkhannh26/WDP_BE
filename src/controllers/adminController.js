@@ -4,6 +4,8 @@ const saltRounds = 10;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { getPermissionsByAccountId } = require("../services/permission");
+const Role = require("../models/roles");
+const Role_account = require("../models/role_account");
 
 const getAccountList = async (req, res) => {
   try {
@@ -37,6 +39,14 @@ const createStaffAccount = async (req, res) => {
         phone,
         role: "staff",
       });
+
+      const roleModel = await Role.findOne({ name: "staff" });
+
+      await Role_account.create({
+        role_id: roleModel._id,
+        account_id: account._id,
+      });
+
       res.status(200).json({ message: "ok", success: true });
     }
   } catch (error) {
@@ -155,8 +165,7 @@ const handleLogin = async (req, res, next) => {
             message: "Username or password is incorrect",
           });
         } else {
-
-          const permissions = await getPermissionsByAccountId(user._id)
+          const permissions = await getPermissionsByAccountId(user._id);
 
           const payload = {
             id: user._id,
@@ -173,7 +182,7 @@ const handleLogin = async (req, res, next) => {
             message: "Login successful",
             token: token,
             role: user.role,
-            permissions: permissions
+            permissions: permissions,
           });
         }
       } else {
