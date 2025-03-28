@@ -26,7 +26,7 @@ module.exports = (io) => {
       .toString()
       .padStart(2, "0")}/${today.getFullYear()}`;
 
-    let staffs = await Account.find({ role: { $ne: "user" } });
+    let staffs = await Account.find({ role: { $ne: "customer" } });
     let staffIds = staffs.map(
       (staff) => new mongoose.Types.ObjectId(staff._id)
     );
@@ -88,7 +88,7 @@ module.exports = (io) => {
 
       res.status(200).json("ok");
       io.to(accountId).emit("notificationCount", 0);
-    } catch (error) {}
+    } catch (error) { }
   };
   return { sendNotification, getListNotification, readNotifications };
 };
