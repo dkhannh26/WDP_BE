@@ -21,6 +21,7 @@ var brandRouter = require("./brand")
 var wishlistRouter = require("./wishlist");
 const permissionRouter = require("./permission");
 const inventoryRouter = require("./inventory");
+const notificationChatRouter = require("./notificationChat");
 
 /* GET home page. */
 router.use("/order", orderRouter);
@@ -42,6 +43,8 @@ router.use("/permission", permissionRouter);
 router.use("/sms", smsRouter);
 router.use("/payOS", payosRouter);
 router.use("/inventory", inventoryRouter);
+router.use("/notification", notificationChatRouter)
+
 /* GET home page. */
 // router.get('/', function(req, res, next) {
 //   res.render('index', { title: 'Express' });

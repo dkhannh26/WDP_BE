@@ -6,6 +6,7 @@ require("dotenv").config();
 const fileUpload = require("express-fileupload");
 const session = require("express-session");
 var indexRouter = require("./routes/index");
+const setupChat = require("./routes/chat");
 
 var app = express();
 
@@ -42,4 +43,4 @@ app.use(
 
 app.use("/", indexRouter);
 
-module.exports = app;
+module.exports = { app, setupChat };
