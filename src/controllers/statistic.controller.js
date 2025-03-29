@@ -67,7 +67,7 @@ const getStatistic = async (req, res, next) => {
         $gte: startDate,
         $lte: endDate,
       },
-      status: "shipped"
+      status: "Completed"
     });
 
 
@@ -79,7 +79,7 @@ const getStatistic = async (req, res, next) => {
             $gte: startDate,
             $lte: endDate
           },
-          status: "shipped"
+          status: "Completed"
         }
       },
       {
