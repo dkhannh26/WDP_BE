@@ -24,6 +24,17 @@ class NotificationChatController {
             res.status(500).json({ error: error.message });
         }
     }
+    async customerRead(req, res, next) {
+        try {
+            await Notification.updateMany(
+                { recipientId: req.params.userId, read: false },
+                { $set: { read: true } }
+            );
+            res.json({ success: true });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
 
 }
 
